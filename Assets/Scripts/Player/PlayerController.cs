@@ -27,18 +27,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isGrounded;
     [Header("Jumping")]
     [SerializeField] float jumpingPower;
-    [SerializeField] float minGroundedTime = 0.1f;
-    private bool isJumping = false;
+    [SerializeField] private float minGroundedTime = 0.1f;
+    [SerializeField] private float jumpIgnoreDuration = 0.05f;
     private float groundedTimeCounter = 0f;
     [Header("Coyote Time")]
     [SerializeField] float coyoteTime = 0.2f;
     private float coyoteTimeCounter;
+    [Header("State Control")]
+    [SerializeField] private int movementLockCounter = 0;
 
     private void FixedUpdate()
     {
         isGrounded = IsGrounded();
         currentSpeed= isSprinting ? baseSpeed+sprintModifier : baseSpeed;
-        if (!isDashing)
+        if (movementLockCounter==0)
         {
             if (horizontal != 0)
             {
@@ -49,9 +51,8 @@ public class PlayerController : MonoBehaviour
                 rb.AddForce(new Vector2(-rb.linearVelocity.x * rb.mass * breakingForce, 0));
             }
         }
-        if(isGrounded &&!isJumping)
+        if(isGrounded)
         {
-            //coyotetimer reset
             coyoteTimeCounter = coyoteTime;
         }
         else
@@ -70,11 +71,6 @@ public class PlayerController : MonoBehaviour
         {
             rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
         }
-        if (isJumping && !isGrounded)
-        {
-            isJumping = false;
-        }
-
     }
     public void Move(InputAction.CallbackContext context)
     {
@@ -87,9 +83,10 @@ public class PlayerController : MonoBehaviour
         {
             coyoteTimeCounter = 0f;
             groundedTimeCounter = 0f;
-            isJumping = true;
+            Physics2D.IgnoreLayerCollision(gameObject.layer, (int)Mathf.Log(groundLayer.value, 2), true);
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
             rb.AddForce(Vector2.up * jumpingPower * rb.mass, ForceMode2D.Impulse);
+            StartCoroutine(EnableGroundCollisionAfterJump(jumpIgnoreDuration));
 
         }
     }
@@ -110,7 +107,7 @@ public class PlayerController : MonoBehaviour
         if (context.performed && horizontal != 0 && !isDashing)
         {
             isDashing = true;
-
+            movementLockCounter++;
             Vector2 dashDirection = new Vector2(horizontal, 0).normalized;
             rb.AddForce(dashDirection * rb.mass * dashPower, ForceMode2D.Impulse);
 
@@ -122,17 +119,22 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(dashDuration);
 
         isDashing = false;
-
+        movementLockCounter--;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x * 0.1f, rb.linearVelocity.y);
+    }
+    private IEnumerator EnableGroundCollisionAfterJump(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Physics2D.IgnoreLayerCollision(gameObject.layer, (int)Mathf.Log(groundLayer.value, 2), false);
     }
     public bool IsGrounded()
     {
         if (playerCollider == null) return false;
 
         // 1. Define the dimensions for the thin check box0
-        float checkHeight = 0.2f; // Tolerance height
+        float checkHeight = 0.05f; // Tolerance height
                                   // Use most of the player's width for the check (e.g., 90%)
-        float checkWidth = playerCollider.bounds.size.x;
+        float checkWidth = playerCollider.bounds.size.x*0.9f;
         Vector2 checkSize = new Vector2(checkWidth, checkHeight);
 
         // 2. Calculate the center point for the check
@@ -167,8 +169,8 @@ public class PlayerController : MonoBehaviour
         // --- Recalculate all the same values as IsGrounded() ---
 
         // 1. Check Dimensions
-        float checkHeight = 0.2f;
-        float checkWidth = playerCollider.bounds.size.x ;
+        float checkHeight = 0.05f;
+        float checkWidth = playerCollider.bounds.size.x*0.9f ;
         Vector3 checkSize = new Vector3(checkWidth, checkHeight, 0f);
 
         // 2. Calculated Center Position

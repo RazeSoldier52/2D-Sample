@@ -675,19 +675,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   rb: {fileID: 723365457}
   playerCollider: {fileID: 723365461}
-  baseSpeed: 10
+  baseSpeed: 5
   currentSpeed: 0
-  jumpingPower: 10
-  sprintModifier: 5
-  isSprinting: 0
   acceleration: 50
   breakingForce: 15
   stickToGroundForce: 40
+  sprintModifier: 5
+  isSprinting: 0
+  dashPower: 30
+  dashDuration: 0.2
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  groundCheck: {fileID: 1014092067}
   playerTransform: {fileID: 723365459}
+  isGrounded: 0
+  jumpingPower: 10
+  minGroundedTime: 0.1
+  jumpIgnoreDuration: 0.05
+  coyoteTime: 0.2
 --- !u!114 &723365463
 MonoBehaviour:
   m_ObjectHideFlags: 0
