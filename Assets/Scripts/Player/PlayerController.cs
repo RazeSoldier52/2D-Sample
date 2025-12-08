@@ -40,10 +40,10 @@ public class PlayerController : MonoBehaviour
             {
                 rb.AddForce(new Vector2(-rb.linearVelocity.x * rb.mass * breakingForce, 0));
             }
-            if (IsGrounded())
-            {
-                rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
-            }
+        }
+        if (IsGrounded())
+        {
+            rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
         }
 
     }
