@@ -7,28 +7,36 @@ public class PlayerController : MonoBehaviour
     [Header("Player Component References")]
     [SerializeField] Rigidbody2D rb;
     [SerializeField] Collider2D playerCollider;
-    [Header("Player Settings")]
-    [SerializeField] float baseSpeed = 10;
-    [SerializeField] float currentSpeed=10;
-    [SerializeField] float jumpingPower;
-    [SerializeField] float sprintModifier;
-    [SerializeField] bool isSprinting = false;
+    [Header("Movement Settings")]
+    [SerializeField] float baseSpeed = 10f;
+    [SerializeField] float currentSpeed;
     [SerializeField] float acceleration = 40f;
     [SerializeField] float breakingForce = 15f;
     [SerializeField] float stickToGroundForce = 15f;
+    private float horizontal;
+    [Header("Sprint")]
+    [SerializeField] float sprintModifier;
+    [SerializeField] bool isSprinting = false;
     [Header("Dashing")]
-    [SerializeField] float dashPower = 30;
+    [SerializeField] float dashPower = 30f;
     [SerializeField] float dashDuration = 0.2f; 
     private bool isDashing = false; 
     [Header("Grounding")]
     [SerializeField] LayerMask groundLayer;
-    [SerializeField] Transform groundCheck;
     [SerializeField] Transform playerTransform;
-    private float horizontal;
-    private float grounded;
-    
+    [SerializeField] private bool isGrounded;
+    [Header("Jumping")]
+    [SerializeField] float jumpingPower;
+    [SerializeField] float minGroundedTime = 0.1f;
+    private bool isJumping = false;
+    private float groundedTimeCounter = 0f;
+    [Header("Coyote Time")]
+    [SerializeField] float coyoteTime = 0.2f;
+    private float coyoteTimeCounter;
+
     private void FixedUpdate()
     {
+        isGrounded = IsGrounded();
         currentSpeed= isSprinting ? baseSpeed+sprintModifier : baseSpeed;
         if (!isDashing)
         {
@@ -36,14 +44,35 @@ public class PlayerController : MonoBehaviour
             {
                 rb.AddForce(new Vector2((((horizontal * currentSpeed) - rb.linearVelocity.x) * rb.mass * acceleration), 0));
             }
-            else if (IsGrounded())
+            else if (isGrounded)
             {
                 rb.AddForce(new Vector2(-rb.linearVelocity.x * rb.mass * breakingForce, 0));
             }
         }
-        if (IsGrounded())
+        if(isGrounded &&!isJumping)
+        {
+            //coyotetimer reset
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.fixedDeltaTime;
+        }
+        if (isGrounded)
+        {
+            groundedTimeCounter += Time.fixedDeltaTime; 
+        }
+        else
+        {
+            groundedTimeCounter = 0f; 
+        }
+        if (isGrounded)
         {
             rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
+        }
+        if (isJumping && !isGrounded)
+        {
+            isJumping = false;
         }
 
     }
@@ -53,10 +82,12 @@ public class PlayerController : MonoBehaviour
     }
     public void Jump(InputAction.CallbackContext context)
     {
-
-        if (context.performed && IsGrounded())
+        bool canJumpFromGrounded = isGrounded && groundedTimeCounter >= minGroundedTime;
+        if (context.performed && (canJumpFromGrounded || coyoteTimeCounter>0))
         {
-
+            coyoteTimeCounter = 0f;
+            groundedTimeCounter = 0f;
+            isJumping = true;
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
             rb.AddForce(Vector2.up * jumpingPower * rb.mass, ForceMode2D.Impulse);
 
@@ -101,7 +132,7 @@ public class PlayerController : MonoBehaviour
         // 1. Define the dimensions for the thin check box0
         float checkHeight = 0.2f; // Tolerance height
                                   // Use most of the player's width for the check (e.g., 90%)
-        float checkWidth = playerCollider.bounds.size.x * 0.9f;
+        float checkWidth = playerCollider.bounds.size.x;
         Vector2 checkSize = new Vector2(checkWidth, checkHeight);
 
         // 2. Calculate the center point for the check
@@ -137,7 +168,7 @@ public class PlayerController : MonoBehaviour
 
         // 1. Check Dimensions
         float checkHeight = 0.2f;
-        float checkWidth = playerCollider.bounds.size.x * 0.9f;
+        float checkWidth = playerCollider.bounds.size.x ;
         Vector3 checkSize = new Vector3(checkWidth, checkHeight, 0f);
 
         // 2. Calculated Center Position
