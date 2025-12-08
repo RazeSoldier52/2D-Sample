@@ -19,7 +19,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] bool isSprinting = false;
     [Header("Dashing")]
     [SerializeField] float dashPower = 30f;
-    [SerializeField] float dashDuration = 0.2f; 
+    [SerializeField] float dashDuration = 0.2f;
+    [SerializeField] int maxDashCharges = 1;
+    [SerializeField] float dashRechargeTime = 2f;
+    private float currentDashCharges;
     private bool isDashing = false; 
     [Header("Grounding")]
     [SerializeField] LayerMask groundLayer;
@@ -36,6 +39,10 @@ public class PlayerController : MonoBehaviour
     [Header("State Control")]
     [SerializeField] private int movementLockCounter = 0;
 
+    private void Start()
+    {
+        currentDashCharges = maxDashCharges;
+    }
     private void FixedUpdate()
     {
         isGrounded = IsGrounded();
@@ -106,13 +113,29 @@ public class PlayerController : MonoBehaviour
         // Check if dash performed, movement input exists, and not already dashing
         if (context.performed && horizontal != 0 && !isDashing)
         {
+            if (!isGrounded && currentDashCharges == 0) return;
             isDashing = true;
             movementLockCounter++;
+            if(!isGrounded)
+            {
+                currentDashCharges--;
+                if (currentDashCharges < maxDashCharges) StartCoroutine(RechargeDash());
+            }
+
             Vector2 dashDirection = new Vector2(horizontal, 0).normalized;
             rb.AddForce(dashDirection * rb.mass * dashPower, ForceMode2D.Impulse);
-
             StartCoroutine(StopDash());
         }
+    }
+    private IEnumerator RechargeDash()
+    {
+        while(currentDashCharges<maxDashCharges)
+        {
+            yield return new WaitForSeconds(dashRechargeTime);
+            currentDashCharges++;
+            currentDashCharges = Mathf.Clamp(currentDashCharges, 0, maxDashCharges);
+        }
+        
     }
     private IEnumerator StopDash()
     {
@@ -159,8 +182,6 @@ public class PlayerController : MonoBehaviour
             groundLayer       // Filter
         );
     }
-
-
     private void OnDrawGizmosSelected()
     {
         // Ensure we have the necessary references before drawing
