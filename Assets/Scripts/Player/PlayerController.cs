@@ -110,7 +110,6 @@ public class PlayerController : MonoBehaviour
     }
     public void Dash(InputAction.CallbackContext context)
     {
-        // Check if dash performed, movement input exists, and not already dashing
         if (context.performed && horizontal != 0 && !isDashing)
         {
             if (!isGrounded && currentDashCharges == 0) return;
@@ -119,7 +118,12 @@ public class PlayerController : MonoBehaviour
             if(!isGrounded)
             {
                 currentDashCharges--;
-                if (currentDashCharges < maxDashCharges) StartCoroutine(RechargeDash());
+                if (currentDashCharges < maxDashCharges)
+                    StartCoroutine(RechargeHandler(
+                          () => currentDashCharges,
+                          (charge) => currentDashCharges = charge,
+                          maxDashCharges,
+                          dashRechargeTime));
             }
 
             Vector2 dashDirection = new Vector2(horizontal, 0).normalized;
@@ -127,15 +131,15 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(StopDash());
         }
     }
-    private IEnumerator RechargeDash()
+
+    private IEnumerator RechargeHandler(System.Func<float> getCurrent, System.Action<float> setCurrent,float maxCharges,float rechargeTime)
     {
-        while(currentDashCharges<maxDashCharges)
+        while(getCurrent()<maxCharges)
         {
-            yield return new WaitForSeconds(dashRechargeTime);
-            currentDashCharges++;
-            currentDashCharges = Mathf.Clamp(currentDashCharges, 0, maxDashCharges);
+            yield return new WaitForSeconds(rechargeTime);
+            float newCharge = getCurrent() + 1f;
+            setCurrent(Mathf.Clamp(newCharge,0f,maxCharges));
         }
-        
     }
     private IEnumerator StopDash()
     {
