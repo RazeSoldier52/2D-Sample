@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -15,6 +16,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float acceleration = 40f;
     [SerializeField] float breakingForce = 15f;
     [SerializeField] float stickToGroundForce = 15f;
+    [Header("Dashing")]
+    [SerializeField] float dashPower = 30;
+    [SerializeField] float dashDuration = 0.2f; 
+    private bool isDashing = false; 
     [Header("Grounding")]
     [SerializeField] LayerMask groundLayer;
     [SerializeField] Transform groundCheck;
@@ -25,17 +30,20 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         currentSpeed= isSprinting ? baseSpeed+sprintModifier : baseSpeed;
-        if (horizontal != 0)
+        if (!isDashing)
         {
-            rb.AddForce(new Vector2((((horizontal * currentSpeed) - rb.linearVelocity.x) * rb.mass * acceleration), 0));
-        }
-        else if (IsGrounded())
-        {
-            rb.AddForce(new Vector2(-rb.linearVelocity.x * rb.mass * breakingForce, 0));
-        }
-        if (IsGrounded())
-        { 
-            rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
+            if (horizontal != 0)
+            {
+                rb.AddForce(new Vector2((((horizontal * currentSpeed) - rb.linearVelocity.x) * rb.mass * acceleration), 0));
+            }
+            else if (IsGrounded())
+            {
+                rb.AddForce(new Vector2(-rb.linearVelocity.x * rb.mass * breakingForce, 0));
+            }
+            if (IsGrounded())
+            {
+                rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
+            }
         }
 
     }
@@ -49,7 +57,8 @@ public class PlayerController : MonoBehaviour
         if (context.performed && IsGrounded())
         {
 
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpingPower);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+            rb.AddForce(Vector2.up * jumpingPower * rb.mass, ForceMode2D.Impulse);
 
         }
     }
@@ -63,6 +72,27 @@ public class PlayerController : MonoBehaviour
         {
             isSprinting = false;
         }
+    }
+    public void Dash(InputAction.CallbackContext context)
+    {
+        // Check if dash performed, movement input exists, and not already dashing
+        if (context.performed && horizontal != 0 && !isDashing)
+        {
+            isDashing = true;
+
+            Vector2 dashDirection = new Vector2(horizontal, 0).normalized;
+            rb.AddForce(dashDirection * rb.mass * dashPower, ForceMode2D.Impulse);
+
+            StartCoroutine(StopDash());
+        }
+    }
+    private IEnumerator StopDash()
+    {
+        yield return new WaitForSeconds(dashDuration);
+
+        isDashing = false;
+
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x * 0.1f, rb.linearVelocity.y);
     }
     public bool IsGrounded()
     {
