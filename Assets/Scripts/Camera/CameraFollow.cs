@@ -7,7 +7,7 @@ public class CameraFollow : MonoBehaviour
     [Header("Camera Target")]
     [SerializeField] private Transform cameraTarget;
     [Header("Camera Distance")]
-    [SerializeField] private Vector3 cameraDistance = new Vector3(0, 0, -10f);
+    [SerializeField] private Vector3 cameraDistance = new Vector3(0, 0, -20f);
     [Header("Camera Speed")]
     [SerializeField] private float cameraSpeed = 0.125f;
 

@@ -1,43 +1,83 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
     [Header("Player Component References")]
     [SerializeField] Rigidbody2D rb;
     [SerializeField] Collider2D playerCollider;
-    [Header("Player Settings")]
-    [SerializeField] float baseSpeed = 10;
-    [SerializeField] float currentSpeed=10;
-    [SerializeField] float jumpingPower;
-    [SerializeField] float sprintModifier;
-    [SerializeField] bool isSprinting = false;
+    [Header("Movement Settings")]
+    [SerializeField] float baseSpeed = 10f;
+    [SerializeField] float currentSpeed;
     [SerializeField] float acceleration = 40f;
     [SerializeField] float breakingForce = 15f;
     [SerializeField] float stickToGroundForce = 15f;
+    private float horizontal;
+    [Header("Sprint")]
+    [SerializeField] float sprintModifier;
+    [SerializeField] bool isSprinting = false;
+    [Header("Dashing")]
+    [SerializeField] float dashPower = 30f;
+    [SerializeField] float dashDuration = 0.2f;
+    [SerializeField] int maxDashCharges = 1;
+    [SerializeField] float dashRechargeTime = 2f;
+    private float currentDashCharges;
+    private bool isDashing = false; 
     [Header("Grounding")]
     [SerializeField] LayerMask groundLayer;
-    [SerializeField] Transform groundCheck;
     [SerializeField] Transform playerTransform;
-    private float horizontal;
-    private float grounded;
-    
+    [SerializeField] private bool isGrounded;
+    [Header("Jumping")]
+    [SerializeField] float jumpingPower;
+    [SerializeField] private float minGroundedTime = 0.1f;
+    [SerializeField] private float jumpIgnoreDuration = 0.05f;
+    private float groundedTimeCounter = 0f;
+    [Header("Coyote Time")]
+    [SerializeField] float coyoteTime = 0.2f;
+    private float coyoteTimeCounter;
+    [Header("State Control")]
+    [SerializeField] private int movementLockCounter = 0;
+
+    private void Start()
+    {
+        currentDashCharges = maxDashCharges;
+    }
     private void FixedUpdate()
     {
+        isGrounded = IsGrounded();
         currentSpeed= isSprinting ? baseSpeed+sprintModifier : baseSpeed;
-        if (horizontal != 0)
+        if (movementLockCounter==0)
         {
-            rb.AddForce(new Vector2((((horizontal * currentSpeed) - rb.linearVelocity.x) * rb.mass * acceleration), 0));
+            if (horizontal != 0)
+            {
+                rb.AddForce(new Vector2((((horizontal * currentSpeed) - rb.linearVelocity.x) * rb.mass * acceleration), 0));
+            }
+            else if (isGrounded)
+            {
+                rb.AddForce(new Vector2(-rb.linearVelocity.x * rb.mass * breakingForce, 0));
+            }
         }
-        else if (IsGrounded())
+        if(isGrounded)
         {
-            rb.AddForce(new Vector2(-rb.linearVelocity.x * rb.mass * breakingForce, 0));
+            coyoteTimeCounter = coyoteTime;
         }
-        if (IsGrounded())
-        { 
+        else
+        {
+            coyoteTimeCounter -= Time.fixedDeltaTime;
+        }
+        if (isGrounded)
+        {
+            groundedTimeCounter += Time.fixedDeltaTime; 
+        }
+        else
+        {
+            groundedTimeCounter = 0f; 
+        }
+        if (isGrounded)
+        {
             rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
         }
-
     }
     public void Move(InputAction.CallbackContext context)
     {
@@ -45,11 +85,15 @@ public class PlayerController : MonoBehaviour
     }
     public void Jump(InputAction.CallbackContext context)
     {
-
-        if (context.performed && IsGrounded())
+        bool canJumpFromGrounded = isGrounded && groundedTimeCounter >= minGroundedTime;
+        if (context.performed && (canJumpFromGrounded || coyoteTimeCounter>0))
         {
-
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpingPower);
+            coyoteTimeCounter = 0f;
+            groundedTimeCounter = 0f;
+            Physics2D.IgnoreLayerCollision(gameObject.layer, (int)Mathf.Log(groundLayer.value, 2), true);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+            rb.AddForce(Vector2.up * jumpingPower * rb.mass, ForceMode2D.Impulse);
+            StartCoroutine(EnableGroundCollisionAfterJump(jumpIgnoreDuration));
 
         }
     }
@@ -64,14 +108,60 @@ public class PlayerController : MonoBehaviour
             isSprinting = false;
         }
     }
+    public void Dash(InputAction.CallbackContext context)
+    {
+        if (context.performed && horizontal != 0 && !isDashing)
+        {
+            if (!isGrounded && currentDashCharges == 0) return;
+            isDashing = true;
+            movementLockCounter++;
+            if(!isGrounded)
+            {
+                currentDashCharges--;
+                if (currentDashCharges < maxDashCharges)
+                    StartCoroutine(RechargeHandler(
+                          () => currentDashCharges,
+                          (charge) => currentDashCharges = charge,
+                          maxDashCharges,
+                          dashRechargeTime));
+            }
+
+            Vector2 dashDirection = new Vector2(horizontal, 0).normalized;
+            rb.AddForce(dashDirection * rb.mass * dashPower, ForceMode2D.Impulse);
+            StartCoroutine(StopDash());
+        }
+    }
+
+    private IEnumerator RechargeHandler(System.Func<float> getCurrent, System.Action<float> setCurrent,float maxCharges,float rechargeTime)
+    {
+        while(getCurrent()<maxCharges)
+        {
+            yield return new WaitForSeconds(rechargeTime);
+            float newCharge = getCurrent() + 1f;
+            setCurrent(Mathf.Clamp(newCharge,0f,maxCharges));
+        }
+    }
+    private IEnumerator StopDash()
+    {
+        yield return new WaitForSeconds(dashDuration);
+
+        isDashing = false;
+        movementLockCounter--;
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x * 0.1f, rb.linearVelocity.y);
+    }
+    private IEnumerator EnableGroundCollisionAfterJump(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Physics2D.IgnoreLayerCollision(gameObject.layer, (int)Mathf.Log(groundLayer.value, 2), false);
+    }
     public bool IsGrounded()
     {
         if (playerCollider == null) return false;
 
         // 1. Define the dimensions for the thin check box0
-        float checkHeight = 0.2f; // Tolerance height
+        float checkHeight = 0.05f; // Tolerance height
                                   // Use most of the player's width for the check (e.g., 90%)
-        float checkWidth = playerCollider.bounds.size.x * 0.9f;
+        float checkWidth = playerCollider.bounds.size.x*0.9f;
         Vector2 checkSize = new Vector2(checkWidth, checkHeight);
 
         // 2. Calculate the center point for the check
@@ -96,8 +186,6 @@ public class PlayerController : MonoBehaviour
             groundLayer       // Filter
         );
     }
-
-
     private void OnDrawGizmosSelected()
     {
         // Ensure we have the necessary references before drawing
@@ -106,8 +194,8 @@ public class PlayerController : MonoBehaviour
         // --- Recalculate all the same values as IsGrounded() ---
 
         // 1. Check Dimensions
-        float checkHeight = 0.2f;
-        float checkWidth = playerCollider.bounds.size.x * 0.9f;
+        float checkHeight = 0.05f;
+        float checkWidth = playerCollider.bounds.size.x*0.9f ;
         Vector3 checkSize = new Vector3(checkWidth, checkHeight, 0f);
 
         // 2. Calculated Center Position
