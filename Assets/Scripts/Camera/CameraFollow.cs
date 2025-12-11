@@ -10,7 +10,8 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private Vector3 cameraDistance = new Vector3(0, 0, -20f);
     [Header("Camera Speed")]
     [SerializeField] private float cameraSpeed = 0.125f;
-
+    
+    
     private void LateUpdate()
     {
         if (cameraTarget == null)
