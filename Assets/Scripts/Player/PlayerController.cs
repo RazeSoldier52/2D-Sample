@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class PlayerController : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
     [SerializeField] Transform playerTransform;
     [SerializeField] private bool isGrounded;
+    [SerializeField] private Vector2 groundNormal;
     [Header("Jumping")]
     [SerializeField] float jumpingPower;
     [SerializeField] private float minGroundedTime = 0.1f;
@@ -38,14 +40,17 @@ public class PlayerController : MonoBehaviour
     private float coyoteTimeCounter;
     [Header("State Control")]
     [SerializeField] private int movementLockCounter = 0;
-
+    [Header("Spawn Point")]
+    [SerializeField] Transform spawnPoint;
     private void Start()
     {
         currentDashCharges = maxDashCharges;
+        gameObject.transform.position = spawnPoint.position;
+
     }
     private void FixedUpdate()
     {
-        isGrounded = IsGrounded();
+        CheckGround();
         currentSpeed= isSprinting ? baseSpeed+sprintModifier : baseSpeed;
         if (movementLockCounter==0)
         {
@@ -92,7 +97,7 @@ public class PlayerController : MonoBehaviour
             groundedTimeCounter = 0f;
             Physics2D.IgnoreLayerCollision(gameObject.layer, (int)Mathf.Log(groundLayer.value, 2), true);
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-            rb.AddForce(Vector2.up * jumpingPower * rb.mass, ForceMode2D.Impulse);
+            rb.AddForce(groundNormal * jumpingPower * rb.mass, ForceMode2D.Impulse);
             StartCoroutine(EnableGroundCollisionAfterJump(jumpIgnoreDuration));
 
         }
@@ -154,77 +159,23 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(delay);
         Physics2D.IgnoreLayerCollision(gameObject.layer, (int)Mathf.Log(groundLayer.value, 2), false);
     }
-    public bool IsGrounded()
+    public void CheckGround()
     {
-        if (playerCollider == null) return false;
-
-        // 1. Define the dimensions for the thin check box0
-        float checkHeight = 0.05f; // Tolerance height
-                                  // Use most of the player's width for the check (e.g., 90%)
-        float checkWidth = playerCollider.bounds.size.x*0.9f;
-        Vector2 checkSize = new Vector2(checkWidth, checkHeight);
-
-        // 2. Calculate the center point for the check
-        // Start at the bottom center of the player's collider bounds (in World Space).
-        Vector2 checkCenter = playerCollider.bounds.center;
-
-        // Offset the Y position downward by half the collider height AND half the check box height
-        // This places the center of the check box just outside the bottom of the player's collider.
-        float colliderHalfHeight = playerCollider.bounds.extents.y;
-        checkCenter.y -= (colliderHalfHeight + (checkHeight / 2));
-
-        // 3. Get the rotation angle from the player's transform
-        float rotationAngle = playerTransform.rotation.eulerAngles.z;
-
-        // 4. Perform the OverlapBox check with rotation
-        // We use OverlapBox here instead of OverlapCapsule, as it's often more intuitive 
-        // when calculating from rectangular bounds.
-        return Physics2D.OverlapBox(
-            checkCenter,      // Calculated position at the feet
-            checkSize,        // Thin, wide check area
-            0,    // **Applies Z-axis rotation**
-            groundLayer       // Filter
-        );
+        float castHeight = 0.05f;
+        float castDistance = 0.01f;
+        float castWidth = playerCollider.bounds.size.x*0.9f;
+        Vector2 castCenter = playerCollider.bounds.center;
+        castCenter.y -= playerCollider.bounds.extents.y + (castHeight / 2);
+        RaycastHit2D hit = Physics2D.BoxCast(castCenter, new Vector2(castWidth, castHeight),0,Vector2.down,castDistance,groundLayer);
+        if(hit)
+        {
+            isGrounded = true;
+            groundNormal = hit.normal;
+        }
+        else
+        {
+            isGrounded = false;
+            groundNormal = Vector2.up;
+        }
     }
-    private void OnDrawGizmosSelected()
-    {
-        // Ensure we have the necessary references before drawing
-        if (playerCollider == null || playerTransform == null) return;
-
-        // --- Recalculate all the same values as IsGrounded() ---
-
-        // 1. Check Dimensions
-        float checkHeight = 0.05f;
-        float checkWidth = playerCollider.bounds.size.x*0.9f ;
-        Vector3 checkSize = new Vector3(checkWidth, checkHeight, 0f);
-
-        // 2. Calculated Center Position
-        Vector2 checkCenter = playerCollider.bounds.center;
-        float colliderHalfHeight = playerCollider.bounds.extents.y;
-        checkCenter.y -= (colliderHalfHeight + (checkHeight / 2));
-
-        // 3. Rotation Angle
-        //float rotationAngle = playerTransform.rotation.eulerAngles.z;
-
-        // --- Gizmo Drawing ---
-
-        // A. Set Color
-        Gizmos.color = Color.cyan;
-
-        // B. Apply Rotation and Position to the Gizmos drawing matrix
-        // This is essential! It tells Unity to draw the subsequent shapes relative to this new rotation/position.
-        Gizmos.matrix = Matrix4x4.TRS(
-            checkCenter, // Center of the check
-            Quaternion.Euler(0, 0, 0), // Apply Z-axis rotation
-            Vector3.one
-        );
-
-        // C. Draw the Wire Cube
-        // We draw the cube centered at Vector3.zero because the matrix (step B) already handles its world position and rotation.
-        Gizmos.DrawWireCube(Vector3.zero, checkSize);
-
-        // D. Reset the Gizmos matrix to avoid affecting other editor drawings
-        Gizmos.matrix = Matrix4x4.identity;
-    }
-
 }
