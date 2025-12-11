@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using System.Collections;
 
 public class Flag : MonoBehaviour
 {
@@ -7,6 +8,7 @@ public class Flag : MonoBehaviour
     [SerializeField] TMP_Text messageText;
     [Header("Display Settings")]
     [SerializeField] private float displayDuration = 3f;
+    [SerializeField] private bool isHandlingTrigger=false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -20,13 +22,13 @@ public class Flag : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player") && !isHandlingTrigger)
         {
-            GetComponent<Collider2D>().enabled = false;
-
+            isHandlingTrigger=true;
+            StartCoroutine(DisplayMessageCoroutine());
         }
     }
-    private System.Collections.IEnumerator DisplayMessageCoroutine()
+    private IEnumerator DisplayMessageCoroutine()
     {
         if (messageText != null)
         {
@@ -37,5 +39,6 @@ public class Flag : MonoBehaviour
         {
             messageText.gameObject.SetActive(false);
         }
+        isHandlingTrigger=false;
     }
 }

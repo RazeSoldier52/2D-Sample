@@ -178,6 +178,4 @@ public class PlayerController : MonoBehaviour
             groundNormal = Vector2.up;
         }
     }
-
-
 }
