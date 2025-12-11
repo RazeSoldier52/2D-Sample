@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Transform playerTransform;
     [SerializeField] private bool isGrounded;
     [SerializeField] private Vector2 groundNormal;
+    [SerializeField] private float minNormalYThreshold = 0.7f;
     [Header("Jumping")]
     [SerializeField] float jumpingPower;
     [SerializeField] private float minGroundedTime = 0.1f;
@@ -55,7 +56,34 @@ public class PlayerController : MonoBehaviour
         {
             if (horizontal != 0)
             {
-                rb.AddForce(new Vector2((((horizontal * currentSpeed) - rb.linearVelocity.x) * rb.mass * acceleration), 0));
+                Vector2 movementDirection = Vector2.right;
+
+                if (isGrounded && groundNormal.y >=minNormalYThreshold)
+                {
+                    // Calculate the slope-parallel vector
+                    movementDirection = Vector2.Perpendicular(groundNormal);
+                }
+
+                // 2. Adjust the vector to point exactly in the INPUT direction
+                // Check the dot product to see if the vector already points in the input direction (e.g., Right).
+                // If the dot product is negative, the direction vector is opposite to the input, so flip it.
+                if (Vector2.Dot(movementDirection, Vector2.right) * horizontal < 0)
+                {
+                    movementDirection *= -1;
+                }
+
+                // 3. Calculate ABSOLUTE speed and use the vector for direction
+                float absoluteTargetSpeed = currentSpeed; // No 'horizontal' multiplier here
+
+                // 4. Calculate current speed ALONG the movementDirection vector
+                float currentSpeedAlongDirection = Vector2.Dot(rb.linearVelocity, movementDirection);
+
+                // 5. Calculate the force needed to reach the ABSOLUTE speed
+                float forceMagnitude = (absoluteTargetSpeed - currentSpeedAlongDirection) * rb.mass * acceleration;
+
+                // 6. Apply the force along the calculated movementDirection vector
+                rb.AddForce(movementDirection * forceMagnitude * Mathf.Abs(horizontal), ForceMode2D.Force);
+                // We multiply by Mathf.Abs(horizontal) to handle analog input (0 to 1)
             }
             else if (isGrounded)
             {
@@ -185,6 +213,7 @@ public class PlayerController : MonoBehaviour
         float castHeight = 0.05f;
         float castWidth = playerCollider.bounds.size.x * 0.9f;
         float castDistance = 0.01f;
+
 
         // 1. Calculate the center of the checking box (Start Point)
         Vector2 castCenter = playerCollider.bounds.center;
