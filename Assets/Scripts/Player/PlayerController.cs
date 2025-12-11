@@ -33,7 +33,6 @@ public class PlayerController : MonoBehaviour
     [Header("Jumping")]
     [SerializeField] float jumpingPower;
     [SerializeField] private float minGroundedTime = 0.1f;
-    [SerializeField] private float jumpIgnoreDuration = 0.05f;
     private float groundedTimeCounter = 0f;
     [Header("Coyote Time")]
     [SerializeField] float coyoteTime = 0.2f;
@@ -81,7 +80,10 @@ public class PlayerController : MonoBehaviour
         }
         if (isGrounded)
         {
-            rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
+            if(rb.linearVelocity.y <= 0.1f) 
+               { 
+                    rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force); 
+               }
         }
     }
     public void Move(InputAction.CallbackContext context)
@@ -95,11 +97,9 @@ public class PlayerController : MonoBehaviour
         {
             coyoteTimeCounter = 0f;
             groundedTimeCounter = 0f;
-            Physics2D.IgnoreLayerCollision(gameObject.layer, (int)Mathf.Log(groundLayer.value, 2), true);
+
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
             rb.AddForce(groundNormal * jumpingPower * rb.mass, ForceMode2D.Impulse);
-            StartCoroutine(EnableGroundCollisionAfterJump(jumpIgnoreDuration));
-
         }
     }
     public void Sprint(InputAction.CallbackContext context)
@@ -154,11 +154,7 @@ public class PlayerController : MonoBehaviour
         movementLockCounter--;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x * 0.1f, rb.linearVelocity.y);
     }
-    private IEnumerator EnableGroundCollisionAfterJump(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        Physics2D.IgnoreLayerCollision(gameObject.layer, (int)Mathf.Log(groundLayer.value, 2), false);
-    }
+  
     public void CheckGround()
     {
         float castHeight = 0.05f;
@@ -176,6 +172,55 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = false;
             groundNormal = Vector2.up;
+        }
+    }
+    private void OnDrawGizmosSelected()
+    {
+        // Ensure we have a collider to work with
+        if (playerCollider == null) return;
+
+        // --- RECALCULATE THE EXACT PARAMETERS USED IN CheckGround() ---
+
+        // Parameters are pulled directly from your CheckGround() logic:
+        float castHeight = 0.05f;
+        float castWidth = playerCollider.bounds.size.x * 0.9f;
+        float castDistance = 0.01f;
+
+        // 1. Calculate the center of the checking box (Start Point)
+        Vector2 castCenter = playerCollider.bounds.center;
+        // Offset down by half the collider height PLUS half the cast height
+        castCenter.y -= playerCollider.bounds.extents.y + (castHeight / 2);
+
+        // The size of the box
+        Vector2 castSize = new Vector2(castWidth, castHeight);
+
+        // The End Point of the sweep (where the box stops)
+        Vector3 castEnd = castCenter + Vector2.down * castDistance;
+
+        // --- DRAWING THE GIZMOS ---
+
+        // Set the color for the Gizmos
+        Gizmos.color = Color.green;
+
+        // 1. Draw the initial box (at the start of the sweep)
+        // This shows where the BoxCast starts right at the player's feet.
+        Gizmos.DrawWireCube(castCenter, castSize);
+
+        // 2. Set the color for the swept area
+        Gizmos.color = Color.yellow;
+
+        // 3. Draw the swept area (The box at the end of the 0.01f cast distance)
+        Gizmos.DrawWireCube(castEnd, castSize);
+
+        // 4. Draw a line connecting the start and end points of the sweep
+        Gizmos.DrawLine(castCenter, castEnd);
+
+        // 5. If we have a ground normal from the last check, visualize it (Optional)
+        if (isGrounded)
+        {
+            Gizmos.color = Color.red;
+            // Draw the ground normal vector from the center of the player
+            Gizmos.DrawLine(playerCollider.bounds.center, playerCollider.bounds.center + (Vector3)groundNormal);
         }
     }
 }
