@@ -1234,6 +1234,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 3509562018021249865, guid: 9a10544e97da13c4e99490030843c52a, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3509562018021249865, guid: 9a10544e97da13c4e99490030843c52a, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3509562018021249865, guid: 9a10544e97da13c4e99490030843c52a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 15.287
       objectReference: {fileID: 0}
@@ -1273,6 +1281,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4568911662426575049, guid: 9a10544e97da13c4e99490030843c52a, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 970600190}
     - target: {fileID: 4568911662426575049, guid: 9a10544e97da13c4e99490030843c52a, type: 3}
       propertyPath: spawnPoint
       value: 

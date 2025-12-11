@@ -8,12 +8,14 @@ public class PlayerController : MonoBehaviour
     [Header("Player Component References")]
     [SerializeField] Rigidbody2D rb;
     [SerializeField] Collider2D playerCollider;
+    [SerializeField] private Animator animator;
     [Header("Movement Settings")]
     [SerializeField] float baseSpeed = 10f;
     [SerializeField] float currentSpeed;
     [SerializeField] float acceleration = 40f;
     [SerializeField] float breakingForce = 15f;
     [SerializeField] float stickToGroundForce = 15f;
+    [SerializeField] private bool isRunning;
     private float horizontal;
     [Header("Sprint")]
     [SerializeField] float sprintModifier;
@@ -112,6 +114,20 @@ public class PlayerController : MonoBehaviour
                { 
                     rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force); 
                }
+        }
+    }
+    private void Update()
+    {
+        isRunning = Mathf.Abs(horizontal) > 0.1f;
+        animator.SetBool("IsRunning", isRunning);
+        animator.SetBool("IsGrounded", isGrounded);
+        if (horizontal > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1); 
+        }
+        else if (horizontal < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1); 
         }
     }
     public void Move(InputAction.CallbackContext context)
