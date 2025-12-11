@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Rigidbody2D rb;
     [SerializeField] Collider2D playerCollider;
     [SerializeField] private Animator animator;
+    [SerializeField] private Vector3 baseScale;
     [Header("Movement Settings")]
     [SerializeField] float baseSpeed = 10f;
     [SerializeField] float currentSpeed;
@@ -48,6 +49,7 @@ public class PlayerController : MonoBehaviour
     {
         currentDashCharges = maxDashCharges;
         gameObject.transform.position = spawnPoint.position;
+        baseScale = transform.localScale;
 
     }
     private void FixedUpdate()
@@ -123,11 +125,11 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsGrounded", isGrounded);
         if (horizontal > 0)
         {
-            transform.localScale = new Vector3(1, 1, 1); 
+            transform.localScale = baseScale;
         }
         else if (horizontal < 0)
         {
-            transform.localScale = new Vector3(-1, 1, 1); 
+            transform.localScale = new Vector3(-baseScale.x,baseScale.y,baseScale.z); 
         }
     }
     public void Move(InputAction.CallbackContext context)
