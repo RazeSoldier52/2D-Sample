@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float acceleration = 40f;
     [SerializeField] float breakingForce = 15f;
     [SerializeField] float stickToGroundForce = 15f;
-    [SerializeField] private bool isRunning;
+
     private float horizontal;
     [Header("Sprint")]
     [SerializeField] float sprintModifier;
@@ -120,7 +120,7 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        isRunning = Mathf.Abs(horizontal) > 0.1f;
+
         animator.SetBool("IsGrounded", isGrounded);
         if (horizontal > 0)
         {
