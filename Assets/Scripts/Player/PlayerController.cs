@@ -131,6 +131,8 @@ public class PlayerController : MonoBehaviour
         {
             transform.localScale = new Vector3(-baseScale.x,baseScale.y,baseScale.z); 
         }
+        animator.SetBool("IsGrounded", isGrounded);
+        animator.SetFloat("yVelocity", rb.linearVelocity.y);
     }
     public void Move(InputAction.CallbackContext context)
     {
