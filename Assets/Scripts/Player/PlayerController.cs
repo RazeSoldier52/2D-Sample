@@ -133,6 +133,7 @@ public class PlayerController : MonoBehaviour
         }
         animator.SetBool("IsGrounded", isGrounded);
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
+        animator.SetFloat("xVelocity", Mathf.Abs(rb.linearVelocity.x));
         animator.SetBool("IsSprinting", isSprinting);
     }
     public void Move(InputAction.CallbackContext context)
