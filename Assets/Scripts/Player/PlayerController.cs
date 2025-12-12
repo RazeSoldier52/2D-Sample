@@ -121,7 +121,6 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         isRunning = Mathf.Abs(horizontal) > 0.1f;
-        animator.SetBool("IsRunning", isRunning);
         animator.SetBool("IsGrounded", isGrounded);
         if (horizontal > 0)
         {
@@ -134,7 +133,7 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsGrounded", isGrounded);
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
         animator.SetFloat("xVelocity", Mathf.Abs(rb.linearVelocity.x));
-        animator.SetBool("IsSprinting", isSprinting);
+
     }
     public void Move(InputAction.CallbackContext context)
     {
