@@ -16,11 +16,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float acceleration = 40f;
     [SerializeField] float breakingForce = 15f;
     [SerializeField] float stickToGroundForce = 15f;
-
     private float horizontal;
     [Header("Sprint")]
     [SerializeField] float sprintModifier;
     [SerializeField] bool isSprinting = false;
+    [Header("Attack")]
+    [SerializeField] bool isAttacking = false;
+    [SerializeField] int attackState;
     [Header("Dashing")]
     [SerializeField] float dashPower = 30f;
     [SerializeField] float dashDuration = 0.2f;
@@ -45,6 +47,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int movementLockCounter = 0;
     [Header("Spawn Point")]
     [SerializeField] Transform spawnPoint;
+    
     private void Start()
     {
         currentDashCharges = maxDashCharges;
@@ -138,6 +141,14 @@ public class PlayerController : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         horizontal = context.ReadValue<Vector2>().x;
+    }
+    public void LightAttack(InputAction.CallbackContext context)
+    {
+        if(isGrounded && !isAttacking) animator.SetTrigger("PressLightAttack");
+    }
+    public void HeavyAttack(InputAction.CallbackContext context)
+    {
+
     }
     public void Jump(InputAction.CallbackContext context)
     {
