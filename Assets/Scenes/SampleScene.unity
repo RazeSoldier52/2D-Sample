@@ -871,6 +871,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -1207,7 +1208,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3509562018021249865, guid: 9a10544e97da13c4e99490030843c52a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 17.91
+      value: 15.287
       objectReference: {fileID: 0}
     - target: {fileID: 3509562018021249865, guid: 9a10544e97da13c4e99490030843c52a, type: 3}
       propertyPath: m_LocalPosition.y

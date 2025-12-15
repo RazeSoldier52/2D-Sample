@@ -8,12 +8,15 @@ public class PlayerController : MonoBehaviour
     [Header("Player Component References")]
     [SerializeField] Rigidbody2D rb;
     [SerializeField] Collider2D playerCollider;
+    [SerializeField] private Animator animator;
+    [SerializeField] private Vector3 baseScale;
     [Header("Movement Settings")]
     [SerializeField] float baseSpeed = 10f;
     [SerializeField] float currentSpeed;
     [SerializeField] float acceleration = 40f;
     [SerializeField] float breakingForce = 15f;
     [SerializeField] float stickToGroundForce = 15f;
+
     private float horizontal;
     [Header("Sprint")]
     [SerializeField] float sprintModifier;
@@ -30,10 +33,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Transform playerTransform;
     [SerializeField] private bool isGrounded;
     [SerializeField] private Vector2 groundNormal;
+    [SerializeField] private float minNormalYThreshold = 0.7f;
     [Header("Jumping")]
     [SerializeField] float jumpingPower;
     [SerializeField] private float minGroundedTime = 0.1f;
-    [SerializeField] private float jumpIgnoreDuration = 0.05f;
     private float groundedTimeCounter = 0f;
     [Header("Coyote Time")]
     [SerializeField] float coyoteTime = 0.2f;
@@ -46,6 +49,7 @@ public class PlayerController : MonoBehaviour
     {
         currentDashCharges = maxDashCharges;
         gameObject.transform.position = spawnPoint.position;
+        baseScale = transform.localScale;
 
     }
     private void FixedUpdate()
@@ -56,7 +60,34 @@ public class PlayerController : MonoBehaviour
         {
             if (horizontal != 0)
             {
-                rb.AddForce(new Vector2((((horizontal * currentSpeed) - rb.linearVelocity.x) * rb.mass * acceleration), 0));
+                Vector2 movementDirection = Vector2.right;
+
+                if (isGrounded && groundNormal.y >=minNormalYThreshold)
+                {
+                    // Calculate the slope-parallel vector
+                    movementDirection = Vector2.Perpendicular(groundNormal);
+                }
+
+                // 2. Adjust the vector to point exactly in the INPUT direction
+                // Check the dot product to see if the vector already points in the input direction (e.g., Right).
+                // If the dot product is negative, the direction vector is opposite to the input, so flip it.
+                if (Vector2.Dot(movementDirection, Vector2.right) * horizontal < 0)
+                {
+                    movementDirection *= -1;
+                }
+
+                // 3. Calculate ABSOLUTE speed and use the vector for direction
+                float absoluteTargetSpeed = currentSpeed; // No 'horizontal' multiplier here
+
+                // 4. Calculate current speed ALONG the movementDirection vector
+                float currentSpeedAlongDirection = Vector2.Dot(rb.linearVelocity, movementDirection);
+
+                // 5. Calculate the force needed to reach the ABSOLUTE speed
+                float forceMagnitude = (absoluteTargetSpeed - currentSpeedAlongDirection) * rb.mass * acceleration;
+
+                // 6. Apply the force along the calculated movementDirection vector
+                rb.AddForce(movementDirection * forceMagnitude * Mathf.Abs(horizontal), ForceMode2D.Force);
+                // We multiply by Mathf.Abs(horizontal) to handle analog input (0 to 1)
             }
             else if (isGrounded)
             {
@@ -81,8 +112,28 @@ public class PlayerController : MonoBehaviour
         }
         if (isGrounded)
         {
-            rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
+            if(rb.linearVelocity.y <= 0.1f) 
+               { 
+                    rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force); 
+               }
         }
+    }
+    private void Update()
+    {
+
+        animator.SetBool("IsGrounded", isGrounded);
+        if (horizontal > 0)
+        {
+            transform.localScale = baseScale;
+        }
+        else if (horizontal < 0)
+        {
+            transform.localScale = new Vector3(-baseScale.x,baseScale.y,baseScale.z); 
+        }
+        animator.SetBool("IsGrounded", isGrounded);
+        animator.SetFloat("yVelocity", rb.linearVelocity.y);
+        animator.SetFloat("xVelocity", Mathf.Abs(rb.linearVelocity.x));
+
     }
     public void Move(InputAction.CallbackContext context)
     {
@@ -95,11 +146,9 @@ public class PlayerController : MonoBehaviour
         {
             coyoteTimeCounter = 0f;
             groundedTimeCounter = 0f;
-            Physics2D.IgnoreLayerCollision(gameObject.layer, (int)Mathf.Log(groundLayer.value, 2), true);
+
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
             rb.AddForce(groundNormal * jumpingPower * rb.mass, ForceMode2D.Impulse);
-            StartCoroutine(EnableGroundCollisionAfterJump(jumpIgnoreDuration));
-
         }
     }
     public void Sprint(InputAction.CallbackContext context)
@@ -154,11 +203,7 @@ public class PlayerController : MonoBehaviour
         movementLockCounter--;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x * 0.1f, rb.linearVelocity.y);
     }
-    private IEnumerator EnableGroundCollisionAfterJump(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        Physics2D.IgnoreLayerCollision(gameObject.layer, (int)Mathf.Log(groundLayer.value, 2), false);
-    }
+  
     public void CheckGround()
     {
         float castHeight = 0.05f;
@@ -178,4 +223,5 @@ public class PlayerController : MonoBehaviour
             groundNormal = Vector2.up;
         }
     }
+    
 }
