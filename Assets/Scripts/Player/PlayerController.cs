@@ -134,7 +134,7 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
         animator.SetFloat("xVelocity", Mathf.Abs(rb.linearVelocity.x));
         // Press T to toggle slow motion
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Keyboard.current.tKey.wasPressedThisFrame)
         {
             Time.timeScale = (Time.timeScale == 1.0f) ? 0.2f : 1.0f;
 
