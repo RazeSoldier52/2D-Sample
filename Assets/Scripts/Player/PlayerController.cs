@@ -16,7 +16,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float acceleration = 40f;
     [SerializeField] float breakingForce = 15f;
     [SerializeField] float stickToGroundForce = 15f;
-
     private float horizontal;
     [Header("Sprint")]
     [SerializeField] float sprintModifier;
@@ -45,6 +44,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int movementLockCounter = 0;
     [Header("Spawn Point")]
     [SerializeField] Transform spawnPoint;
+    [Header("Animation State")]
+    [SerializeField] private AnimatorStateInfo animatorStateInfo;
+    private void Awake()
+    {
+        animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+    }
     private void Start()
     {
         currentDashCharges = maxDashCharges;
@@ -120,7 +125,7 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-
+        animatorStateInfo= animator.GetCurrentAnimatorStateInfo(0);
         animator.SetBool("IsGrounded", isGrounded);
         if (horizontal > 0)
         {
@@ -192,6 +197,16 @@ public class PlayerController : MonoBehaviour
             rb.AddForce(dashDirection * rb.mass * dashPower, ForceMode2D.Impulse);
             StartCoroutine(StopDash());
         }
+    }
+    public void LightAttack(InputAction.CallbackContext context)
+    {
+        if(animatorStateInfo.IsName("Horizontal Movement")&& isGrounded)
+        animator.SetTrigger("PressLightAttack");
+    }
+    public void HeavyAttack(InputAction.CallbackContext context)
+    {
+        if (animatorStateInfo.IsName("Horizontal Movement") && isGrounded)
+            animator.SetTrigger("PressHeavyAttack");
     }
 
     private IEnumerator RechargeHandler(System.Func<float> getCurrent, System.Action<float> setCurrent,float maxCharges,float rechargeTime)
