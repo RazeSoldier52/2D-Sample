@@ -200,12 +200,12 @@ public class PlayerController : MonoBehaviour
     }
     public void LightAttack(InputAction.CallbackContext context)
     {
-        if(animatorStateInfo.IsName("Horizontal Movement")&& isGrounded)
+        if(animatorStateInfo.IsName("Horizontal Movement")&& isGrounded && context.performed)
         animator.SetTrigger("PressLightAttack");
     }
     public void HeavyAttack(InputAction.CallbackContext context)
     {
-        if (animatorStateInfo.IsName("Horizontal Movement") && isGrounded)
+        if (animatorStateInfo.IsName("Horizontal Movement") && isGrounded && context.performed)
             animator.SetTrigger("PressHeavyAttack");
     }
 
