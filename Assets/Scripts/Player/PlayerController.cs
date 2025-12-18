@@ -133,6 +133,14 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsGrounded", isGrounded);
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
         animator.SetFloat("xVelocity", Mathf.Abs(rb.linearVelocity.x));
+        // Press T to toggle slow motion
+        if (Keyboard.current.tKey.wasPressedThisFrame)
+        {
+            Time.timeScale = (Time.timeScale == 1.0f) ? 0.2f : 1.0f;
+
+            // Adjust fixedDeltaTime so physics remains smooth while slow
+            Time.fixedDeltaTime = 0.02f * Time.timeScale;
+        }
 
     }
     public void Move(InputAction.CallbackContext context)
