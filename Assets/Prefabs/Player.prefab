@@ -215,7 +215,19 @@ MonoBehaviour:
     m_ActionId: 386c631f-6f63-48ee-87b7-71a3c9a645dc
     m_ActionName: 'Player/Look[/Mouse/delta]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4568911662426575049}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: LightAttack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 5ac88a16-dde6-4f7e-8552-86a071f75eb0
     m_ActionName: 'Player/Fire[/Mouse/leftButton]'
   - m_PersistentCalls:
@@ -306,6 +318,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 9db93f78-59a4-4a6d-a2c7-ce03eaaed53e
     m_ActionName: 'Player/Sprint[/Keyboard/leftShift]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4568911662426575049}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: HeavyAttack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 40008b58-1a08-43d0-a1fc-dcf41f64b7f3
+    m_ActionName: 'Player/HeavyAttack[/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: Player
@@ -332,7 +360,6 @@ MonoBehaviour:
   acceleration: 50
   breakingForce: 15
   stickToGroundForce: 40
-  isRunning: 0
   sprintModifier: 5
   isSprinting: 0
   dashPower: 30
