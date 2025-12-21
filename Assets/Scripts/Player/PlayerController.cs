@@ -46,6 +46,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Transform spawnPoint;
     [Header("Animation State")]
     [SerializeField] private AnimatorStateInfo animatorStateInfo;
+    [SerializeField] public GameObject SwordAttack;
+    public void ActivateHitbox() => SwordAttack.SetActive(true);
+    public void DeactivateHitbox() => SwordAttack.SetActive(false);
     private void Awake()
     {
         animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
