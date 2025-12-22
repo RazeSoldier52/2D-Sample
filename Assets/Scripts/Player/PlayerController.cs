@@ -4,8 +4,6 @@ using System.Collections;
 using Unity.VisualScripting;
 using System;
 
-
-
 public class PlayerController : MonoBehaviour,IBoundaryBehaviour
 {
     [Header("Player Component References")]

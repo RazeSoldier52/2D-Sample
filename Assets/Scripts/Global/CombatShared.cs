@@ -33,23 +33,24 @@ public enum MovementState
     Sprinting=1<<1,
     Dashing=1<<2
 }
-
-[Flags]
-public enum Attack
+public enum PrimaryAction
 {
-    NotAttacking=0,
+    None=0,
     Attacking=1<<0,
-    LightAttack=1<<1,
-    HeavyAttack=1<<2
+    Interacting=1<<1,
+    EnvironmentallyBlocked=1<<2,
+    MechanicallyBlocked=1<<3
 }
 
 [Serializable]
 public struct PlayerStateProfile
 {
     public VerticalState vertical;
-    public bool canAttack;
-    public Attack attack;
-    public MovementState movementState;
-    public bool canMove; 
+    public MovementState movement;
+    public PrimaryAction primaryAction;
+    public bool primaryActionFree => primaryAction== PrimaryAction.None;
+    public bool canAttack => vertical==VerticalState.Grounded && primaryAction==PrimaryAction.None;
+    public bool canJump => vertical == VerticalState.Grounded;
+
 }
 
