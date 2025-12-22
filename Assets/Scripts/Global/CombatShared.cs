@@ -19,4 +19,13 @@ public interface IBoundaryBehaviour
 {
     void HandleBoundaryBehaviour();
 }
+[System.Serializable]
+public struct AttackProfile
+{
+    public string name;
+    public float damage;
+    public Vector2 offset;
+    public Vector2 size;
+    public HitType type;
+}
 

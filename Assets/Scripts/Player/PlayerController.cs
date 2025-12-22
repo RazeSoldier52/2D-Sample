@@ -10,6 +10,10 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     [SerializeField] Collider2D playerCollider;
     [SerializeField] private Animator animator;
     [SerializeField] private Vector3 baseScale;
+    [Header("AttackProfiles")]
+    public AttackProfile lightAttack;
+    public AttackProfile heavyAttack;
+    public LayerMask attackableLayer;
     [Header("Movement Settings")]
     [SerializeField] float baseSpeed = 10f;
     [SerializeField] float currentSpeed;
@@ -250,5 +254,48 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     {
         rb.linearVelocity *= 0;
         transform.position = spawnPoint.position;
+    }
+    public void ExecuteHitbox(string attackName)
+    {
+        AttackProfile profile = (attackName == "Heavy") ? heavyAttack : lightAttack;
+
+        // Calculate the actual position based on player facing direction
+        Vector2 faceDir = new Vector2(transform.localScale.x, 1);
+        Vector2 finalOffset = new Vector2(profile.offset.x * faceDir.x, profile.offset.y);
+        Vector2 checkPos = (Vector2)transform.position + finalOffset;
+
+        // The "Magic" Command: This finds everyone in the box instantly
+        Collider2D[] hitEnemies = Physics2D.OverlapBoxAll(checkPos, profile.size, 0f, attackableLayer);
+
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            if (enemy.TryGetComponent(out IDamageable victim))
+            {
+                HitInfo info = new HitInfo
+                {
+                    damage = profile.damage,
+                    hitPoint = enemy.ClosestPoint(checkPos),
+                    hitDirection = faceDir,
+                    hitType = profile.type
+                };
+                victim.TakeDamage(info);
+            }
+        }
+    }
+
+    // This lets you see the "invisible" boxes in the Scene View!
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        DrawHitboxGizmo(lightAttack);
+        Gizmos.color = Color.yellow;
+        DrawHitboxGizmo(heavyAttack);
+    }
+
+    private void DrawHitboxGizmo(AttackProfile profile)
+    {
+        Vector2 faceDir = new Vector2(transform.localScale.x, 1);
+        Vector2 finalOffset = new Vector2(profile.offset.x * faceDir.x, profile.offset.y);
+        Gizmos.DrawWireCube((Vector2)transform.position + finalOffset, profile.size);
     }
 }
