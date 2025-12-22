@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 596513490759166807}
   - component: {fileID: 7273295659244127893}
+  - component: {fileID: 7306404311887788952}
   m_Layer: 0
   m_Name: SwordAttack
   m_TagString: Untagged
@@ -78,6 +79,20 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &7306404311887788952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6392730091315349195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abd81f06c3462ef469d8e2624f85f95a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Hitbox
+  lightAtttackDamage: 5
+  heavyAttackDamage: 10
 --- !u!1 &8751402046621260853
 GameObject:
   m_ObjectHideFlags: 0
@@ -448,7 +463,6 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  playerTransform: {fileID: 3509562018021249865}
   isGrounded: 0
   groundNormal: {x: 0, y: 0}
   minNormalYThreshold: 0.7
@@ -457,6 +471,7 @@ MonoBehaviour:
   coyoteTime: 0.2
   movementLockCounter: 0
   spawnPoint: {fileID: 0}
+  SwordAttack: {fileID: 6392730091315349195}
 --- !u!95 &7419253102718006684
 Animator:
   serializedVersion: 7
