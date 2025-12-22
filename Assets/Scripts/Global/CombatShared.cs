@@ -51,6 +51,9 @@ public struct PlayerStateProfile
     public bool primaryActionFree => primaryAction== PrimaryAction.None;
     public bool canAttack => vertical==VerticalState.Grounded && primaryAction==PrimaryAction.None;
     public bool canJump => vertical == VerticalState.Grounded;
+    public bool canMove => !primaryAction.HasFlag(PrimaryAction.EnvironmentallyBlocked) &&
+                           !primaryAction.HasFlag(PrimaryAction.MechanicallyBlocked) &&
+                           !primaryAction.HasFlag(PrimaryAction.Attacking);
 
 }
 
