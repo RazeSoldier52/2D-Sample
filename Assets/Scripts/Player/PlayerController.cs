@@ -247,7 +247,6 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
             groundNormal = Vector2.up;
         }
     }
-
     public void HandleBoundaryBehaviour()
     {
         rb.linearVelocity *= 0;
