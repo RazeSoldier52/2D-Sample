@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 using System.Collections;
 using Unity.VisualScripting;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour,IBoundaryBehaviour
 {
     [Header("Player Component References")]
     [SerializeField] Rigidbody2D rb;
@@ -57,7 +57,6 @@ public class PlayerController : MonoBehaviour
         currentDashCharges = maxDashCharges;
         gameObject.transform.position = spawnPoint.position;
         baseScale = transform.localScale;
-
     }
     private void FixedUpdate()
     {
@@ -223,7 +222,6 @@ public class PlayerController : MonoBehaviour
     private IEnumerator StopDash()
     {
         yield return new WaitForSeconds(dashDuration);
-
         isDashing = false;
         movementLockCounter--;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x * 0.1f, rb.linearVelocity.y);
@@ -248,5 +246,9 @@ public class PlayerController : MonoBehaviour
             groundNormal = Vector2.up;
         }
     }
-    
+    public void HandleBoundaryBehaviour()
+    {
+        rb.linearVelocity *= 0;
+        transform.position = spawnPoint.position;
+    }
 }

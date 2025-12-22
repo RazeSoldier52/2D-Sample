@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 7458602367812020277}
   - component: {fileID: 8044422102470556522}
   - component: {fileID: 307277124271323479}
-  m_Layer: 0
-  m_Name: Respawn Collider 1
+  m_Layer: 7
+  m_Name: WorldBoundary
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

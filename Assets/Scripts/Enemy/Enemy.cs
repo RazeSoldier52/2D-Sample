@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Enemy : MonoBehaviour,IDamageable
+public class Enemy : MonoBehaviour,IDamageable,IBoundaryBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [Header("Properties")]
@@ -17,4 +17,8 @@ public class Enemy : MonoBehaviour,IDamageable
         Destroy(gameObject);
     }
 
+    public void HandleBoundaryBehaviour()
+    {
+        Destroy(gameObject);
+    }
 }
