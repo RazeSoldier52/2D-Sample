@@ -33,6 +33,7 @@ public enum MovementState
     Sprinting=1<<1,
     Dashing=1<<2
 }
+[Flags]
 public enum PrimaryAction
 {
     None=0,
@@ -41,7 +42,6 @@ public enum PrimaryAction
     EnvironmentallyBlocked=1<<2,
     MechanicallyBlocked=1<<3
 }
-
 [Serializable]
 public struct PlayerStateProfile
 {
