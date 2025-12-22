@@ -222,7 +222,6 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     private IEnumerator StopDash()
     {
         yield return new WaitForSeconds(dashDuration);
-
         isDashing = false;
         movementLockCounter--;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x * 0.1f, rb.linearVelocity.y);
