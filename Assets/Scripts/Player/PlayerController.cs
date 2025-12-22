@@ -29,7 +29,6 @@ public class PlayerController : MonoBehaviour
     private bool isDashing = false; 
     [Header("Grounding")]
     [SerializeField] LayerMask groundLayer;
-    [SerializeField] Transform playerTransform;
     [SerializeField] private bool isGrounded;
     [SerializeField] private Vector2 groundNormal;
     [SerializeField] private float minNormalYThreshold = 0.7f;

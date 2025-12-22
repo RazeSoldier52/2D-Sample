@@ -1,15 +1,15 @@
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour,IDamageable
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [Header("Properties")]
-    [SerializeField] private int health = 10;
+    [SerializeField] private float health = 10;
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(HitInfo hitInfo)
     {
-        health -= damage;
-        Debug.Log(gameObject.name + " took damage! Health: " + health);
+        health -= hitInfo.damage;
+        Debug.Log(gameObject.name + " took"+hitInfo.damage+ " damage! Health:"  + health);
         if (health <= 0) Die();
     }
     public void Die()
