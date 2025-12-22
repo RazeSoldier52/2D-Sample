@@ -1302,6 +1302,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Circle
       objectReference: {fileID: 0}
+    - target: {fileID: 4396243872308147194, guid: a9895d3c0d9b7ce44b5e78cbb74b52ca, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4425773066093604103, guid: a9895d3c0d9b7ce44b5e78cbb74b52ca, type: 3}
       propertyPath: m_LocalPosition.x
       value: 18.05
