@@ -91,7 +91,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abd81f06c3462ef469d8e2624f85f95a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hitbox
-  lightAtttackDamage: 5
+  lightAttackDamage: 5
   heavyAttackDamage: 10
 --- !u!1 &8751402046621260853
 GameObject:
@@ -449,13 +449,16 @@ MonoBehaviour:
   playerCollider: {fileID: 7157337275816876773}
   animator: {fileID: 7419253102718006684}
   baseScale: {x: 0, y: 0, z: 0}
-  baseSpeed: 7.5
-  currentSpeed: 0
+  state:
+    vertical: 0
+    movement: 0
+    primaryAction: 0
+    baseSpeed: 7.5
+    sprintModifier: 5
+    movementLockCounter: 0
   acceleration: 50
   breakingForce: 15
   stickToGroundForce: 40
-  sprintModifier: 5
-  isSprinting: 0
   dashPower: 30
   dashDuration: 0.2
   maxDashCharges: 1
@@ -463,13 +466,11 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  isGrounded: 0
   groundNormal: {x: 0, y: 0}
   minNormalYThreshold: 0.7
   jumpingPower: 10
   minGroundedTime: 0.1
   coyoteTime: 0.2
-  movementLockCounter: 0
   spawnPoint: {fileID: 0}
   SwordAttack: {fileID: 6392730091315349195}
 --- !u!95 &7419253102718006684
