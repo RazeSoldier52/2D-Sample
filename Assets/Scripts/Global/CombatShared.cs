@@ -40,7 +40,9 @@ public enum PrimaryAction
     Attacking=1<<0,
     Interacting=1<<1,
     EnvironmentallyBlocked=1<<2,
-    MechanicallyBlocked=1<<3
+    MechanicallyBlocked=1<<3,
+
+    AllMovementBlocks = Attacking |MechanicallyBlocked|EnvironmentallyBlocked,
 }
 [Serializable]
 public struct PlayerStateProfile
@@ -49,11 +51,10 @@ public struct PlayerStateProfile
     public MovementState movement;
     public PrimaryAction primaryAction;
     public bool primaryActionFree => primaryAction== PrimaryAction.None;
+    public bool IsMovementRestricted => (primaryAction & PrimaryAction.AllMovementBlocks) != 0;
     public bool canAttack => vertical==VerticalState.Grounded && primaryAction==PrimaryAction.None;
-    public bool canJump => vertical == VerticalState.Grounded;
-    public bool canMove => !primaryAction.HasFlag(PrimaryAction.EnvironmentallyBlocked) &&
-                           !primaryAction.HasFlag(PrimaryAction.MechanicallyBlocked) &&
-                           !primaryAction.HasFlag(PrimaryAction.Attacking);
+    public bool canJump => vertical == VerticalState.Grounded && !IsMovementRestricted;
+    public bool canMove => !IsMovementRestricted;
 
 }
 
