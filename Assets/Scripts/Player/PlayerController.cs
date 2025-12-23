@@ -1,8 +1,9 @@
-using UnityEngine;
-using UnityEngine.InputSystem;
+using System;
 using System.Collections;
 using Unity.VisualScripting;
-using System;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.Playables;
 
 public class PlayerController : MonoBehaviour,IBoundaryBehaviour
 {
@@ -11,26 +12,20 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     [SerializeField] Collider2D playerCollider;
     [SerializeField] private Animator animator;
     [SerializeField] private Vector3 baseScale;
+    [SerializeField] private PlayerStateProfile state;
     [Header("Movement Settings")]
-    [SerializeField] float baseSpeed = 10f;
-    [SerializeField] float currentSpeed;
     [SerializeField] float acceleration = 40f;
     [SerializeField] float breakingForce = 15f;
     [SerializeField] float stickToGroundForce = 15f;
     private float horizontal;
-    [Header("Sprint")]
-    [SerializeField] float sprintModifier;
-    [SerializeField] bool isSprinting = false;
     [Header("Dashing")]
     [SerializeField] float dashPower = 30f;
     [SerializeField] float dashDuration = 0.2f;
     [SerializeField] int maxDashCharges = 1;
     [SerializeField] float dashRechargeTime = 2f;
     private float currentDashCharges;
-    private bool isDashing = false; 
     [Header("Grounding")]
     [SerializeField] LayerMask groundLayer;
-    [SerializeField] private bool isGrounded;
     [SerializeField] private Vector2 groundNormal;
     [SerializeField] private float minNormalYThreshold = 0.7f;
     [Header("Jumping")]
@@ -62,14 +57,14 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     private void FixedUpdate()
     {
         CheckGround();
-        currentSpeed= isSprinting ? baseSpeed+sprintModifier : baseSpeed;
+
         if (movementLockCounter==0)
         {
             if (horizontal != 0)
             {
                 Vector2 movementDirection = Vector2.right;
 
-                if (isGrounded && groundNormal.y >=minNormalYThreshold)
+                if (state.vertical==VerticalState.Grounded && groundNormal.y >=minNormalYThreshold)
                 {
                     // Calculate the slope-parallel vector
                     movementDirection = Vector2.Perpendicular(groundNormal);
@@ -84,7 +79,7 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
                 }
 
                 // 3. Calculate ABSOLUTE speed and use the vector for direction
-                float absoluteTargetSpeed = currentSpeed; // No 'horizontal' multiplier here
+                float absoluteTargetSpeed = state.currentSpeed; // No 'horizontal' multiplier here
 
                 // 4. Calculate current speed ALONG the movementDirection vector
                 float currentSpeedAlongDirection = Vector2.Dot(rb.linearVelocity, movementDirection);
@@ -96,12 +91,12 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
                 rb.AddForce(movementDirection * forceMagnitude * Mathf.Abs(horizontal), ForceMode2D.Force);
                 // We multiply by Mathf.Abs(horizontal) to handle analog input (0 to 1)
             }
-            else if (isGrounded)
+            else if (state.vertical == VerticalState.Grounded)
             {
                 rb.AddForce(new Vector2(-rb.linearVelocity.x * rb.mass * breakingForce, 0));
             }
         }
-        if(isGrounded)
+        if(state.vertical==VerticalState.Grounded)
         {
             coyoteTimeCounter = coyoteTime;
         }
@@ -109,7 +104,7 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
         {
             coyoteTimeCounter -= Time.fixedDeltaTime;
         }
-        if (isGrounded)
+        if (state.vertical == VerticalState.Grounded)
         {
             groundedTimeCounter += Time.fixedDeltaTime; 
         }
@@ -117,7 +112,7 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
         {
             groundedTimeCounter = 0f; 
         }
-        if (isGrounded)
+        if (state.vertical == VerticalState.Grounded)
         {
             if(rb.linearVelocity.y <= 0.1f) 
                { 
@@ -128,7 +123,7 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     private void Update()
     {
         animatorStateInfo= animator.GetCurrentAnimatorStateInfo(0);
-        animator.SetBool("IsGrounded", isGrounded);
+        animator.SetBool("IsGrounded", state.vertical == VerticalState.Grounded);
         if (horizontal > 0)
         {
             transform.localScale = baseScale;
@@ -137,7 +132,7 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
         {
             transform.localScale = new Vector3(-baseScale.x,baseScale.y,baseScale.z); 
         }
-        animator.SetBool("IsGrounded", isGrounded);
+        animator.SetBool("IsGrounded", state.vertical == VerticalState.Grounded);
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
         animator.SetFloat("xVelocity", Mathf.Abs(rb.linearVelocity.x));
         // Press T to toggle slow motion
@@ -153,10 +148,19 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         horizontal = context.ReadValue<Vector2>().x;
+        if(horizontal !=0)
+        {
+            state.movement |= MovementState.Running;
+        }
+        else
+        {
+            state.movement &=~MovementState.Running;
+        }
     }
     public void Jump(InputAction.CallbackContext context)
     {
-        bool canJumpFromGrounded = isGrounded && groundedTimeCounter >= minGroundedTime;
+
+        bool canJumpFromGrounded = state.vertical == VerticalState.Grounded && groundedTimeCounter >= minGroundedTime;
         if (context.performed && (canJumpFromGrounded || coyoteTimeCounter>0))
         {
             coyoteTimeCounter = 0f;
@@ -170,21 +174,21 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     {
         if(context.performed)
         {
-            isSprinting = true;
+            state.movement |= MovementState.Sprinting;
         }
         else if(context.canceled)
         {
-            isSprinting = false;
+            state.movement &= ~MovementState.Sprinting;
         }
     }
     public void Dash(InputAction.CallbackContext context)
     {
-        if (context.performed && horizontal != 0 && !isDashing)
+        if (context.performed && horizontal != 0 && !state.movement.HasFlag(MovementState.Dashing))
         {
-            if (!isGrounded && currentDashCharges == 0) return;
-            isDashing = true;
+            if (state.vertical==VerticalState.Airborne && currentDashCharges == 0) return;
+            state.movement|=MovementState.Dashing;
             movementLockCounter++;
-            if(!isGrounded)
+            if(state.vertical==VerticalState.Airborne)
             {
                 currentDashCharges--;
                 if (currentDashCharges < maxDashCharges)
@@ -202,12 +206,12 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     }
     public void LightAttack(InputAction.CallbackContext context)
     {
-        if(animatorStateInfo.IsName("Horizontal Movement")&& isGrounded && context.performed)
+        if(animatorStateInfo.IsName("Horizontal Movement")&& state.vertical==VerticalState.Grounded && context.performed)
         animator.SetTrigger("PressLightAttack");
     }
     public void HeavyAttack(InputAction.CallbackContext context)
     {
-        if (animatorStateInfo.IsName("Horizontal Movement") && isGrounded && context.performed)
+        if (animatorStateInfo.IsName("Horizontal Movement") && state.vertical==VerticalState.Grounded && context.performed)
             animator.SetTrigger("PressHeavyAttack");
     }
 
@@ -223,7 +227,7 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     private IEnumerator StopDash()
     {
         yield return new WaitForSeconds(dashDuration);
-        isDashing = false;
+        state.movement &= ~MovementState.Dashing;
         movementLockCounter--;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x * 0.1f, rb.linearVelocity.y);
     }
@@ -238,12 +242,12 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
         RaycastHit2D hit = Physics2D.BoxCast(castCenter, new Vector2(castWidth, castHeight),0,Vector2.down,castDistance,groundLayer);
         if(hit)
         {
-            isGrounded = true;
+            state.vertical = VerticalState.Grounded;
             groundNormal = hit.normal;
         }
         else
         {
-            isGrounded = false;
+            state.vertical = VerticalState.Airborne;
             groundNormal = Vector2.up;
         }
     }

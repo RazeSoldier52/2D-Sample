@@ -50,6 +50,10 @@ public struct PlayerStateProfile
     public VerticalState vertical;
     public MovementState movement;
     public PrimaryAction primaryAction;
+    public float baseSpeed;
+    public float sprintModifier;
+    public int movementLockCounter;
+    public float currentSpeed => movement.HasFlag(MovementState.Sprinting) ? baseSpeed+sprintModifier : baseSpeed;
     public bool primaryActionFree => primaryAction== PrimaryAction.None;
     public bool IsMovementRestricted => (primaryAction & PrimaryAction.AllMovementBlocks) != 0;
     public bool canAttack => vertical==VerticalState.Grounded && primaryAction==PrimaryAction.None;
