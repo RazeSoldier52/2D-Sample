@@ -40,10 +40,7 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [SerializeField] Transform spawnPoint;
 
     [SerializeField] public GameObject SwordAttack;
-    private void Awake()
-    {
 
-    }
     private void Start()
     {
         currentDashCharges = maxDashCharges;
