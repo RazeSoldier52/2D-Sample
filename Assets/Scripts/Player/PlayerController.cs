@@ -38,7 +38,6 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     private float coyoteTimeCounter;
     [Header("Spawn Point")]
     [SerializeField] Transform spawnPoint;
-    [Header("Animation State")]
 
     [SerializeField] public GameObject SwordAttack;
     private void Awake()
