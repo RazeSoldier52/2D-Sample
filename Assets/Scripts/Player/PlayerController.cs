@@ -35,8 +35,6 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     [Header("Coyote Time")]
     [SerializeField] float coyoteTime = 0.2f;
     private float coyoteTimeCounter;
-    [Header("State Control")]
-    [SerializeField] private int movementLockCounter = 0;
     [Header("Spawn Point")]
     [SerializeField] Transform spawnPoint;
     [Header("Animation State")]
@@ -58,7 +56,7 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     {
         CheckGround();
 
-        if (movementLockCounter==0)
+        if (state.canMove)
         {
             if (horizontal != 0)
             {
@@ -187,7 +185,7 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
         {
             if (state.vertical==VerticalState.Airborne && currentDashCharges == 0) return;
             state.movement|=MovementState.Dashing;
-            movementLockCounter++;
+            state.movementLockCounter++;
             if(state.vertical==VerticalState.Airborne)
             {
                 currentDashCharges--;
@@ -198,7 +196,6 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
                           maxDashCharges,
                           dashRechargeTime));
             }
-
             Vector2 dashDirection = new Vector2(horizontal, 0).normalized;
             rb.AddForce(dashDirection * rb.mass * dashPower, ForceMode2D.Impulse);
             StartCoroutine(StopDash());
@@ -228,7 +225,7 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     {
         yield return new WaitForSeconds(dashDuration);
         state.movement &= ~MovementState.Dashing;
-        movementLockCounter--;
+        state.movementLockCounter--;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x * 0.1f, rb.linearVelocity.y);
     }
   

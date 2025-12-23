@@ -55,7 +55,7 @@ public struct PlayerStateProfile
     public int movementLockCounter;
     public float currentSpeed => movement.HasFlag(MovementState.Sprinting) ? baseSpeed+sprintModifier : baseSpeed;
     public bool primaryActionFree => primaryAction== PrimaryAction.None;
-    public bool IsMovementRestricted => (primaryAction & PrimaryAction.AllMovementBlocks) != 0;
+    public bool IsMovementRestricted => movementLockCounter > 0 || (primaryAction & PrimaryAction.AllMovementBlocks) != 0;
     public bool canAttack => vertical==VerticalState.Grounded && primaryAction==PrimaryAction.None;
     public bool canJump => vertical == VerticalState.Grounded && !IsMovementRestricted;
     public bool canMove => !IsMovementRestricted;
