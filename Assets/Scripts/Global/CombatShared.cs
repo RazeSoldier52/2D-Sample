@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 public enum HitType
 {
     Physical,
@@ -18,5 +19,42 @@ public interface IDamageable
 public interface IBoundaryBehaviour
 {
     void HandleBoundaryBehaviour();
+}
+public enum VerticalState
+{
+    Grounded,
+    Airborne
+}
+[Flags]
+public enum MovementState
+{
+    NotMoving=0,
+    Running=1<<0,
+    Sprinting=1<<1,
+    Dashing=1<<2
+}
+[Flags]
+public enum PrimaryAction
+{
+    None=0,
+    Attacking=1<<0,
+    Interacting=1<<1,
+    EnvironmentallyBlocked=1<<2,
+    MechanicallyBlocked=1<<3,
+
+    AllMovementBlocks = Attacking |MechanicallyBlocked|EnvironmentallyBlocked,
+}
+[Serializable]
+public struct PlayerStateProfile
+{
+    public VerticalState vertical;
+    public MovementState movement;
+    public PrimaryAction primaryAction;
+    public bool primaryActionFree => primaryAction== PrimaryAction.None;
+    public bool IsMovementRestricted => (primaryAction & PrimaryAction.AllMovementBlocks) != 0;
+    public bool canAttack => vertical==VerticalState.Grounded && primaryAction==PrimaryAction.None;
+    public bool canJump => vertical == VerticalState.Grounded && !IsMovementRestricted;
+    public bool canMove => !IsMovementRestricted;
+
 }
 
