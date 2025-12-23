@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [SerializeField] Collider2D playerCollider;
     [SerializeField] private Animator animator;
     [SerializeField] private Vector3 baseScale;
-    [SerializeField] PlayerStateProfile state;
+    [SerializeField] private PlayerStateProfile state;
     [Header("Movement Settings")]
     [SerializeField] float acceleration = 40f;
     [SerializeField] float breakingForce = 15f;
@@ -213,7 +213,6 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
             animator.SetTrigger("PressHeavyAttack");
         }
     }
-
     private IEnumerator RechargeHandler(System.Func<float> getCurrent, System.Action<float> setCurrent, float maxCharges, float rechargeTime)
     {
         while (getCurrent() < maxCharges)
