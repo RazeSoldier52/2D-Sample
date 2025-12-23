@@ -39,11 +39,11 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [Header("Spawn Point")]
     [SerializeField] Transform spawnPoint;
     [Header("Animation State")]
-    [SerializeField] private AnimatorStateInfo animatorStateInfo;
+
     [SerializeField] public GameObject SwordAttack;
     private void Awake()
     {
-        animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
     }
     private void Start()
     {
@@ -116,7 +116,6 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     }
     private void Update()
     {
-        animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
         animator.SetBool("IsGrounded", state.vertical == VerticalState.Grounded);
         if(state.canMove)
         {
