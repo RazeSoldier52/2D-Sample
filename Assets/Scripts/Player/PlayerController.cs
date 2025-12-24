@@ -29,6 +29,8 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [SerializeField] LayerMask groundLayer;
     [SerializeField] private Vector2 groundNormal;
     [SerializeField] private float minNormalYThreshold = 0.7f;
+    [SerializeField] private float xSpeed;
+    [SerializeField] private float ySpeed;
     [Header("Jumping")]
     [SerializeField] float jumpingPower;
     [SerializeField] private float minGroundedTime = 0.1f;
@@ -109,6 +111,8 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
                 rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
             }
         }
+        xSpeed = rb.linearVelocity.x;
+        ySpeed = rb.linearVelocity.y;
     }
     private void Update()
     {
