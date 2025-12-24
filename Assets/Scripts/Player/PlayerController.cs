@@ -39,8 +39,9 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     private float coyoteTimeCounter;
     [Header("Spawn Point")]
     [SerializeField] Transform spawnPoint;
-
     [SerializeField] public GameObject SwordAttack;
+    [Serialize] bool IsFalling => rb.linearVelocity.y < -0.1f && state.vertical == VerticalState.Airborne;
+    [Serialize] bool IsJumpingUp => rb.linearVelocity.y > 0.1f && state.vertical == VerticalState.Airborne;
 
     private void Start()
     {
@@ -83,7 +84,7 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
             // We multiply by Mathf.Abs(horizontal) to handle analog input (0 to 1)
 
         }
-        else if (state.vertical == VerticalState.Grounded)
+        else if (state.vertical == VerticalState.Grounded && !state.movement.HasFlag(MovementState.Dashing))
         {
             rb.AddForce(new Vector2(-rb.linearVelocity.x * rb.mass * breakingForce, 0));
         }
@@ -257,9 +258,14 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
         rb.linearVelocity *= 0;
         transform.position = spawnPoint.position;
     }
-    public void ActivateHitbox() => SwordAttack.SetActive(true);
+    public void ActivateHitbox()
+    {
+        SwordAttack.SetActive(true);
+        state.movementLockCounter++;
+    }
     public void DeactivateHitbox()
     {
+        state.movementLockCounter--;
         state.primaryAction &= ~PrimaryAction.Attacking;
         SwordAttack.SetActive(false);
     }
