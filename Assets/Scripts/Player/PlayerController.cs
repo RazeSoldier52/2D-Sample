@@ -1,36 +1,32 @@
-using UnityEngine;
-using UnityEngine.InputSystem;
+using System;
 using System.Collections;
 using Unity.VisualScripting;
-using System;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.Playables;
 
-public class PlayerController : MonoBehaviour,IBoundaryBehaviour
+public class PlayerController : MonoBehaviour, IBoundaryBehaviour
 {
+
     [Header("Player Component References")]
     [SerializeField] Rigidbody2D rb;
     [SerializeField] Collider2D playerCollider;
     [SerializeField] private Animator animator;
     [SerializeField] private Vector3 baseScale;
+    [SerializeField] private PlayerStateProfile state;
     [Header("Movement Settings")]
-    [SerializeField] float baseSpeed = 10f;
-    [SerializeField] float currentSpeed;
     [SerializeField] float acceleration = 40f;
     [SerializeField] float breakingForce = 15f;
     [SerializeField] float stickToGroundForce = 15f;
     private float horizontal;
-    [Header("Sprint")]
-    [SerializeField] float sprintModifier;
-    [SerializeField] bool isSprinting = false;
     [Header("Dashing")]
     [SerializeField] float dashPower = 30f;
     [SerializeField] float dashDuration = 0.2f;
     [SerializeField] int maxDashCharges = 1;
     [SerializeField] float dashRechargeTime = 2f;
     private float currentDashCharges;
-    private bool isDashing = false; 
     [Header("Grounding")]
     [SerializeField] LayerMask groundLayer;
-    [SerializeField] private bool isGrounded;
     [SerializeField] private Vector2 groundNormal;
     [SerializeField] private float minNormalYThreshold = 0.7f;
     [Header("Jumping")]
@@ -40,19 +36,11 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     [Header("Coyote Time")]
     [SerializeField] float coyoteTime = 0.2f;
     private float coyoteTimeCounter;
-    [Header("State Control")]
-    [SerializeField] private int movementLockCounter = 0;
     [Header("Spawn Point")]
     [SerializeField] Transform spawnPoint;
-    [Header("Animation State")]
-    [SerializeField] private AnimatorStateInfo animatorStateInfo;
+
     [SerializeField] public GameObject SwordAttack;
-    public void ActivateHitbox() => SwordAttack.SetActive(true);
-    public void DeactivateHitbox() => SwordAttack.SetActive(false);
-    private void Awake()
-    {
-        animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-    }
+
     private void Start()
     {
         currentDashCharges = maxDashCharges;
@@ -62,46 +50,43 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     private void FixedUpdate()
     {
         CheckGround();
-        currentSpeed= isSprinting ? baseSpeed+sprintModifier : baseSpeed;
-        if (movementLockCounter==0)
+        if (horizontal != 0 && state.canMove)
         {
-            if (horizontal != 0)
+            Vector2 movementDirection = Vector2.right;
+
+            if (state.vertical == VerticalState.Grounded && groundNormal.y >= minNormalYThreshold)
             {
-                Vector2 movementDirection = Vector2.right;
-
-                if (isGrounded && groundNormal.y >=minNormalYThreshold)
-                {
-                    // Calculate the slope-parallel vector
-                    movementDirection = Vector2.Perpendicular(groundNormal);
-                }
-
-                // 2. Adjust the vector to point exactly in the INPUT direction
-                // Check the dot product to see if the vector already points in the input direction (e.g., Right).
-                // If the dot product is negative, the direction vector is opposite to the input, so flip it.
-                if (Vector2.Dot(movementDirection, Vector2.right) * horizontal < 0)
-                {
-                    movementDirection *= -1;
-                }
-
-                // 3. Calculate ABSOLUTE speed and use the vector for direction
-                float absoluteTargetSpeed = currentSpeed; // No 'horizontal' multiplier here
-
-                // 4. Calculate current speed ALONG the movementDirection vector
-                float currentSpeedAlongDirection = Vector2.Dot(rb.linearVelocity, movementDirection);
-
-                // 5. Calculate the force needed to reach the ABSOLUTE speed
-                float forceMagnitude = (absoluteTargetSpeed - currentSpeedAlongDirection) * rb.mass * acceleration;
-
-                // 6. Apply the force along the calculated movementDirection vector
-                rb.AddForce(movementDirection * forceMagnitude * Mathf.Abs(horizontal), ForceMode2D.Force);
-                // We multiply by Mathf.Abs(horizontal) to handle analog input (0 to 1)
+                // Calculate the slope-parallel vector
+                movementDirection = Vector2.Perpendicular(groundNormal);
             }
-            else if (isGrounded)
+
+            // 2. Adjust the vector to point exactly in the INPUT direction
+            // Check the dot product to see if the vector already points in the input direction (e.g., Right).
+            // If the dot product is negative, the direction vector is opposite to the input, so flip it.
+            if (Vector2.Dot(movementDirection, Vector2.right) * horizontal < 0)
             {
-                rb.AddForce(new Vector2(-rb.linearVelocity.x * rb.mass * breakingForce, 0));
+                movementDirection *= -1;
             }
+
+            // 3. Calculate ABSOLUTE speed and use the vector for direction
+            float absoluteTargetSpeed = state.currentSpeed; // No 'horizontal' multiplier here
+
+            // 4. Calculate current speed ALONG the movementDirection vector
+            float currentSpeedAlongDirection = Vector2.Dot(rb.linearVelocity, movementDirection);
+
+            // 5. Calculate the force needed to reach the ABSOLUTE speed
+            float forceMagnitude = (absoluteTargetSpeed - currentSpeedAlongDirection) * rb.mass * acceleration;
+
+            // 6. Apply the force along the calculated movementDirection vector
+            rb.AddForce(movementDirection * forceMagnitude * Mathf.Abs(horizontal), ForceMode2D.Force);
+            // We multiply by Mathf.Abs(horizontal) to handle analog input (0 to 1)
+
         }
-        if(isGrounded)
+        else if (state.vertical == VerticalState.Grounded)
+        {
+            rb.AddForce(new Vector2(-rb.linearVelocity.x * rb.mass * breakingForce, 0));
+        }
+        if (state.vertical == VerticalState.Grounded)
         {
             coyoteTimeCounter = coyoteTime;
         }
@@ -109,35 +94,37 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
         {
             coyoteTimeCounter -= Time.fixedDeltaTime;
         }
-        if (isGrounded)
+        if (state.vertical == VerticalState.Grounded)
         {
-            groundedTimeCounter += Time.fixedDeltaTime; 
+            groundedTimeCounter += Time.fixedDeltaTime;
         }
         else
         {
-            groundedTimeCounter = 0f; 
+            groundedTimeCounter = 0f;
         }
-        if (isGrounded)
+        if (state.vertical == VerticalState.Grounded)
         {
-            if(rb.linearVelocity.y <= 0.1f) 
-               { 
-                    rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force); 
-               }
+            if (rb.linearVelocity.y <= 0.1f)
+            {
+                rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
+            }
         }
     }
     private void Update()
     {
-        animatorStateInfo= animator.GetCurrentAnimatorStateInfo(0);
-        animator.SetBool("IsGrounded", isGrounded);
-        if (horizontal > 0)
+        animator.SetBool("IsGrounded", state.vertical == VerticalState.Grounded);
+        if(state.canMove)
         {
-            transform.localScale = baseScale;
+            if (horizontal > 0)
+            {
+                transform.localScale = baseScale;
+            }
+            else if (horizontal < 0)
+            {
+                transform.localScale = new Vector3(-baseScale.x, baseScale.y, baseScale.z);
+            }
         }
-        else if (horizontal < 0)
-        {
-            transform.localScale = new Vector3(-baseScale.x,baseScale.y,baseScale.z); 
-        }
-        animator.SetBool("IsGrounded", isGrounded);
+        animator.SetBool("IsGrounded", state.vertical == VerticalState.Grounded);
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
         animator.SetFloat("xVelocity", Mathf.Abs(rb.linearVelocity.x));
         // Press T to toggle slow motion
@@ -153,38 +140,49 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         horizontal = context.ReadValue<Vector2>().x;
+        if (horizontal != 0)
+        {
+            state.movement |= MovementState.Running;
+        }
+        else
+        {
+            state.movement &= ~MovementState.Running;
+        }
     }
     public void Jump(InputAction.CallbackContext context)
     {
-        bool canJumpFromGrounded = isGrounded && groundedTimeCounter >= minGroundedTime;
-        if (context.performed && (canJumpFromGrounded || coyoteTimeCounter>0))
-        {
-            coyoteTimeCounter = 0f;
-            groundedTimeCounter = 0f;
 
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-            rb.AddForce(groundNormal * jumpingPower * rb.mass, ForceMode2D.Impulse);
+        bool groundedAndReady = state.vertical == VerticalState.Grounded && groundedTimeCounter >= minGroundedTime;
+        if (context.performed && !state.IsMovementRestricted)
+        {
+            if (groundedAndReady || coyoteTimeCounter > 0)
+            {
+                coyoteTimeCounter = 0f;
+                groundedTimeCounter = 0f;
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+                rb.AddForce(groundNormal * jumpingPower * rb.mass, ForceMode2D.Impulse);
+            }
         }
     }
     public void Sprint(InputAction.CallbackContext context)
     {
-        if(context.performed)
+        if (context.performed)
         {
-            isSprinting = true;
+            state.movement |= MovementState.Sprinting;
         }
-        else if(context.canceled)
+        else if (context.canceled)
         {
-            isSprinting = false;
+            state.movement &= ~MovementState.Sprinting;
         }
     }
     public void Dash(InputAction.CallbackContext context)
     {
-        if (context.performed && horizontal != 0 && !isDashing)
+        if (context.performed && horizontal != 0 && !state.movement.HasFlag(MovementState.Dashing))
         {
-            if (!isGrounded && currentDashCharges == 0) return;
-            isDashing = true;
-            movementLockCounter++;
-            if(!isGrounded)
+            if (state.vertical == VerticalState.Airborne && currentDashCharges == 0) return;
+            state.movement |= MovementState.Dashing;
+            state.movementLockCounter++;
+            if (state.vertical == VerticalState.Airborne)
             {
                 currentDashCharges--;
                 if (currentDashCharges < maxDashCharges)
@@ -194,7 +192,6 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
                           maxDashCharges,
                           dashRechargeTime));
             }
-
             Vector2 dashDirection = new Vector2(horizontal, 0).normalized;
             rb.AddForce(dashDirection * rb.mass * dashPower, ForceMode2D.Impulse);
             StartCoroutine(StopDash());
@@ -202,48 +199,53 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     }
     public void LightAttack(InputAction.CallbackContext context)
     {
-        if(animatorStateInfo.IsName("Horizontal Movement")&& isGrounded && context.performed)
-        animator.SetTrigger("PressLightAttack");
+        if (state.vertical == VerticalState.Grounded && state.canAttack)
+        {
+            state.primaryAction |= PrimaryAction.Attacking;
+            animator.SetTrigger("PressLightAttack");
+        }
     }
     public void HeavyAttack(InputAction.CallbackContext context)
     {
-        if (animatorStateInfo.IsName("Horizontal Movement") && isGrounded && context.performed)
+        if (state.vertical == VerticalState.Grounded && state.canAttack)
+        {
+            state.primaryAction |= PrimaryAction.Attacking;
             animator.SetTrigger("PressHeavyAttack");
+        }
     }
-
-    private IEnumerator RechargeHandler(System.Func<float> getCurrent, System.Action<float> setCurrent,float maxCharges,float rechargeTime)
+    private IEnumerator RechargeHandler(System.Func<float> getCurrent, System.Action<float> setCurrent, float maxCharges, float rechargeTime)
     {
-        while(getCurrent()<maxCharges)
+        while (getCurrent() < maxCharges)
         {
             yield return new WaitForSeconds(rechargeTime);
             float newCharge = getCurrent() + 1f;
-            setCurrent(Mathf.Clamp(newCharge,0f,maxCharges));
+            setCurrent(Mathf.Clamp(newCharge, 0f, maxCharges));
         }
     }
     private IEnumerator StopDash()
     {
         yield return new WaitForSeconds(dashDuration);
-        isDashing = false;
-        movementLockCounter--;
+        state.movement &= ~MovementState.Dashing;
+        state.movementLockCounter--;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x * 0.1f, rb.linearVelocity.y);
     }
-  
+
     public void CheckGround()
     {
         float castHeight = 0.05f;
         float castDistance = 0.01f;
-        float castWidth = playerCollider.bounds.size.x*0.9f;
+        float castWidth = playerCollider.bounds.size.x * 0.9f;
         Vector2 castCenter = playerCollider.bounds.center;
         castCenter.y -= playerCollider.bounds.extents.y + (castHeight / 2);
-        RaycastHit2D hit = Physics2D.BoxCast(castCenter, new Vector2(castWidth, castHeight),0,Vector2.down,castDistance,groundLayer);
-        if(hit)
+        RaycastHit2D hit = Physics2D.BoxCast(castCenter, new Vector2(castWidth, castHeight), 0, Vector2.down, castDistance, groundLayer);
+        if (hit)
         {
-            isGrounded = true;
+            state.vertical = VerticalState.Grounded;
             groundNormal = hit.normal;
         }
         else
         {
-            isGrounded = false;
+            state.vertical = VerticalState.Airborne;
             groundNormal = Vector2.up;
         }
     }
@@ -251,5 +253,11 @@ public class PlayerController : MonoBehaviour,IBoundaryBehaviour
     {
         rb.linearVelocity *= 0;
         transform.position = spawnPoint.position;
+    }
+    public void ActivateHitbox() => SwordAttack.SetActive(true);
+    public void DeactivateHitbox()
+    {
+        state.primaryAction &= ~PrimaryAction.Attacking;
+        SwordAttack.SetActive(false);
     }
 }

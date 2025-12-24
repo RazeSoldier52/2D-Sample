@@ -5,7 +5,6 @@ public class Hitbox : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [SerializeField] private int lightAttackDamage = 5;
-    [SerializeField] private int heavyAttackDamage = 10;
     public static event Action<HitInfo> OnAnyHit;
 
     public void OnTriggerEnter2D(Collider2D other)
