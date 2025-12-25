@@ -14,14 +14,14 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [SerializeField] private Vector3 baseScale;
     [SerializeField] private PlayerStateProfile state;
     [Header("Movement Settings")]
-    [SerializeField] float acceleration = 40f;
-    [SerializeField] float breakingForce = 15f;
-    [SerializeField] float stickToGroundForce = 15f;
+    [SerializeField] private float acceleration = 40f;
+    [SerializeField] private float breakingForce = 15f;
+    [SerializeField] private float stickToGroundForce = 15f;
     private float horizontal;
     [Header("Dashing")]
-    [SerializeField] float dashPower = 30f;
-    [SerializeField] float dashDuration = 0.2f;
-    [SerializeField] int maxDashCharges = 1;
+    [SerializeField] private float dashPower = 30f;
+    [SerializeField] private float dashDuration = 0.2f;
+    [SerializeField] private int maxDashCharges = 1;
     [SerializeField] float dashRechargeTime = 2f;
     private float currentDashCharges;
     [Header("Grounding")]
@@ -31,17 +31,18 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [SerializeField] private float xSpeed;
     [SerializeField] private float ySpeed;
     [Header("Jumping")]
-    [SerializeField] float jumpingPower;
+    [SerializeField] private float jumpingPower;
     [SerializeField] private float minGroundedTime = 0.1f;
+    [SerializeField] private float jumpCutOffSpeedMultiplier = 0.5f; 
     private float groundedTimeCounter = 0f;
     [Header("Coyote Time")]
-    [SerializeField] float coyoteTime = 0.2f;
+    [SerializeField] private float coyoteTime = 0.2f;
     private float coyoteTimeCounter;
     [Header("Spawn Point")]
     [SerializeField] Transform spawnPoint;
     [SerializeField] public GameObject SwordAttack;
-    [Serialize] bool IsFalling => rb.linearVelocity.y < -0.1f && state.vertical == VerticalState.Airborne;
-    [Serialize] bool IsJumpingUp => rb.linearVelocity.y > 0.1f && state.vertical == VerticalState.Airborne;
+    bool IsFalling => rb.linearVelocity.y < -0.1f && state.vertical == VerticalState.Airborne;
+    bool IsJumpingUp => rb.linearVelocity.y > 0.1f && state.vertical == VerticalState.Airborne;
 
     private void Start()
     {
@@ -166,6 +167,10 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);   
                 rb.AddForce(groundNormal * jumpingPower * rb.mass, ForceMode2D.Impulse);
             }
+        }
+        if(context.canceled && rb.linearVelocity.y>0)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * jumpCutOffSpeedMultiplier);
         }
     }
     public void Sprint(InputAction.CallbackContext context)
