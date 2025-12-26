@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [Header("Jumping")]
     [SerializeField] private float jumpingPower;
     [SerializeField] private float minGroundedTime = 0.1f;
-    [SerializeField] private float jumpCutOffSpeedMultiplier = 0.5f; 
+    [SerializeField] private float jumpCutOffSpeedMultiplier = 0.5f;
     private float groundedTimeCounter = 0f;
     [Header("Coyote Time")]
     [SerializeField] private float coyoteTime = 0.2f;
@@ -41,8 +41,8 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [Header("Spawn Point")]
     [SerializeField] Transform spawnPoint;
     [SerializeField] public GameObject SwordAttack;
-    bool IsFalling => rb.linearVelocity.y < -0.1f && state.vertical == VerticalState.Airborne;
-    bool IsJumpingUp => rb.linearVelocity.y > 0.1f && state.vertical == VerticalState.Airborne;
+    bool isFalling => rb.linearVelocity.y < -0.1f && state.vertical == VerticalState.Airborne;
+    bool isJumpingUp => rb.linearVelocity.y > 0.1f && state.vertical == VerticalState.Airborne;
 
     private void Start()
     {
@@ -105,12 +105,11 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
         {
             groundedTimeCounter = 0f;
         }
-        if (state.vertical == VerticalState.Grounded)
+        if (state.vertical == VerticalState.Grounded && !isJumpingUp)
         {
-            if (rb.linearVelocity.y <= 0.1f)
-            {
-                rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
-            }
+
+            rb.AddForce(Vector2.down * stickToGroundForce, ForceMode2D.Force);
+
         }
         xSpeed = rb.linearVelocity.x;
         ySpeed = rb.linearVelocity.y;
@@ -118,7 +117,7 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     private void Update()
     {
         animator.SetBool("IsGrounded", state.vertical == VerticalState.Grounded);
-        if(state.canMove)
+        if (state.canMove)
         {
             if (horizontal > 0)
             {
@@ -164,11 +163,11 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
             {
                 coyoteTimeCounter = 0f;
                 groundedTimeCounter = 0f;
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);   
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
                 rb.AddForce(groundNormal * jumpingPower * rb.mass, ForceMode2D.Impulse);
             }
         }
-        if(context.canceled && rb.linearVelocity.y>0)
+        if (context.canceled && rb.linearVelocity.y > 0)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * jumpCutOffSpeedMultiplier);
         }
