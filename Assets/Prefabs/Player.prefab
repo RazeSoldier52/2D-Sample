@@ -131,7 +131,6 @@ GameObject:
   - component: {fileID: 3509562018021249865}
   - component: {fileID: 8719493109380774633}
   - component: {fileID: 7889199500353573272}
-  - component: {fileID: 7157337275816876773}
   - component: {fileID: 5423123599404157327}
   - component: {fileID: 4568911662426575049}
   - component: {fileID: 7419253102718006684}
@@ -244,52 +243,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!61 &7157337275816876773
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8751402046621260853}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: 4206ac4f3f29670468d04b6bbd63ef1b, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0.02, y: -0.03}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.48, y: 0.82}
-    newSize: {x: 0.16, y: 0.16}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.25, y: 0.76}
-  m_EdgeRadius: 0
 --- !u!114 &5423123599404157327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -473,7 +426,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   rb: {fileID: 7889199500353573272}
-  playerCollider: {fileID: 7157337275816876773}
+  playerCollider: {fileID: 0}
   animator: {fileID: 7419253102718006684}
   baseScale: {x: 0, y: 0, z: 0}
   state:
@@ -495,8 +448,11 @@ MonoBehaviour:
     m_Bits: 64
   groundNormal: {x: 0, y: 0}
   minNormalYThreshold: 0.7
+  xSpeed: 0
+  ySpeed: 0
   jumpingPower: 10
   minGroundedTime: 0.1
+  jumpCutOffSpeedMultiplier: 0.5
   coyoteTime: 0.2
   spawnPoint: {fileID: 0}
   SwordAttack: {fileID: 6392730091315349195}

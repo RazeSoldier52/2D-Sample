@@ -206,7 +206,7 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     }
     public void LightAttack(InputAction.CallbackContext context)
     {
-        if (state.vertical == VerticalState.Grounded && state.canAttack)
+        if (state.vertical == VerticalState.Grounded && state.canAttack && context.performed)
         {
             state.primaryAction |= PrimaryAction.Attacking;
             animator.SetTrigger("PressLightAttack");
@@ -214,7 +214,7 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     }
     public void HeavyAttack(InputAction.CallbackContext context)
     {
-        if (state.vertical == VerticalState.Grounded && state.canAttack)
+        if (state.vertical == VerticalState.Grounded && state.canAttack && context.performed)
         {
             state.primaryAction |= PrimaryAction.Attacking;
             animator.SetTrigger("PressHeavyAttack");
