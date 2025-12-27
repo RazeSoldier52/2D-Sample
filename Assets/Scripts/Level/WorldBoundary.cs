@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class WorldBoundary : MonoBehaviour
 {
-    public static System.Action OnPlayerFallsOutOfBounds;
+    public static System.Action OnPlayerFellOutOfBounds;
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(other.gameObject.CompareTag("Player"))
         {
-            OnPlayerFallsOutOfBounds?.Invoke();
+            OnPlayerFellOutOfBounds?.Invoke();
         }
         if(other.TryGetComponent<IBoundaryBehaviour>(out IBoundaryBehaviour handleBoundaryAction))
         {

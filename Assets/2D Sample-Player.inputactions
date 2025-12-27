@@ -25,15 +25,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "LightAttack",
-                    "type": "Button",
-                    "id": "5ac88a16-dde6-4f7e-8552-86a071f75eb0",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Jump",
                     "type": "Button",
                     "id": "688f9913-ac35-4771-aab0-d1a3945ed231",
@@ -61,9 +52,18 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "LightAttack",
+                    "type": "Button",
+                    "id": "acb907b5-261d-42bf-98fb-55cdf02d23a5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "HeavyAttack",
                     "type": "Button",
-                    "id": "40008b58-1a08-43d0-a1fc-dcf41f64b7f3",
+                    "id": "f00c5256-91aa-4c16-b089-2406b89cce16",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -238,61 +238,6 @@
                 },
                 {
                     "name": "",
-                    "id": "143bb1cd-cc10-4eca-a2f0-a3664166fe91",
-                    "path": "<Gamepad>/rightShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad;Keyboard&Mouse",
-                    "action": "LightAttack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "05f6913d-c316-48b2-a6bb-e225f14c7960",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "LightAttack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "886e731e-7071-4ae4-95c0-e61739dad6fd",
-                    "path": "<Touchscreen>/primaryTouch/tap",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Touch",
-                    "action": "LightAttack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "ee3d0cd2-254e-47a7-a8cb-bc94d9658c54",
-                    "path": "<Joystick>/trigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Joystick",
-                    "action": "LightAttack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "8255d333-5683-4943-a58a-ccb207ff1dce",
-                    "path": "<XRController>/{PrimaryAction}",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "XR",
-                    "action": "LightAttack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "1022b7c2-da2c-48f1-81ce-61dff6dbd004",
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
@@ -337,22 +282,22 @@
                 },
                 {
                     "name": "",
-                    "id": "678e7528-5b24-4ac4-8c4f-aed713fbc621",
-                    "path": "<Mouse>/rightButton",
+                    "id": "a8bdeecb-8103-4ac3-8ef0-763c788967eb",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "HeavyAttack",
+                    "action": "LightAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "a1f2f52b-8d93-452c-a3b9-ad32ac8c6fed",
-                    "path": "<Gamepad>/rightTrigger",
+                    "id": "e9980c0c-6bf0-4fb3-9a12-dd866fc045f5",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Keyboard&Mouse",
                     "action": "HeavyAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
