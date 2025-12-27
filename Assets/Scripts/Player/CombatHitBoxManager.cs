@@ -2,6 +2,10 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 
+//This script has been written by Gemini. I will not be implementing it until I digest its contents and verify the logic.
+
+
+
 // 1. The Data Structure
 // This defines the properties for a single attack type.
 [Serializable]

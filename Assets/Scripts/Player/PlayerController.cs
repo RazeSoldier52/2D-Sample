@@ -263,11 +263,14 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     }
     public void ActivateHitbox()
     {
+        Debug.Log("Hitbox Activated");
         SwordAttack.SetActive(true);
         state.movementLockCounter++;
     }
     public void DeactivateHitbox()
     {
+        if (!SwordAttack.activeInHierarchy) return;
+        Debug.Log("Hitbox Deactivated");
         state.movementLockCounter--;
         state.primaryAction &= ~PrimaryAction.Attacking;
         SwordAttack.SetActive(false);
