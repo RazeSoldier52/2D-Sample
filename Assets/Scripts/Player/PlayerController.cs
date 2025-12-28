@@ -161,7 +161,7 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
             {
                 coyoteTimeCounter = 0f;
                 groundedTimeCounter = 0f;
-                if(rb.linearVelocity.y<0f) rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f); ;
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f); 
                 rb.AddForce(groundNormal * jumpingPower * rb.mass, ForceMode2D.Impulse);
             }
         }
