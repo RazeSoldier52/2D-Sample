@@ -16,7 +16,7 @@ How To Play
 2.Open in Unity: Add the project via Unity Hub.
 3.Run: Open `Scenes/FirstLevel.unity` and press Play.
 
-Controls
+Controls:
 Movement: A/D
 Sprint: Left Shift
 Jump: W
