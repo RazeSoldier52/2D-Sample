@@ -3,7 +3,6 @@ This is a 2D Platformer prototype I made as my first game to start my journey to
 Features:
 Character Controller: A player controller that centralizes logic which handles acions such as moving, dashing, jumping and attacking.
 Animation Based Logic: Uses animation events to trigger logic such as attacking hitboxes.
-Custom Editor Tool: A custom small tool made to automate sprite pivot and border alignment.
 State Machine Architecture: Uses a struct based state machine architecture to keep track of player's current state, which then is used for logic in player controller.
 
 Tech:
