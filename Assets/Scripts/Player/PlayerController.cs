@@ -32,7 +32,6 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [Header("Jumping")]
     [SerializeField] private float jumpingPower;
     [SerializeField] private float minGroundedTime = 0.1f;
-    [SerializeField] private float jumpCutOffSpeedMultiplier = 0.5f;
     private float groundedTimeCounter = 0f;
     [Header("Coyote Time")]
     [SerializeField] private float coyoteTime = 0.2f;
@@ -162,14 +161,14 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
             {
                 coyoteTimeCounter = 0f;
                 groundedTimeCounter = 0f;
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f); 
                 rb.AddForce(groundNormal * jumpingPower * rb.mass, ForceMode2D.Impulse);
             }
         }
-        if (context.canceled && rb.linearVelocity.y > 0)
+        /*if (context.canceled && rb.linearVelocity.y > 0)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * jumpCutOffSpeedMultiplier);
-        }
+        }*/
     }
     public void Sprint(InputAction.CallbackContext context)
     {
@@ -263,11 +262,14 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     }
     public void ActivateHitbox()
     {
+        Debug.Log("Hitbox Activated");
         SwordAttack.SetActive(true);
         state.movementLockCounter++;
     }
     public void DeactivateHitbox()
     {
+        if (!SwordAttack.activeInHierarchy) return;
+        Debug.Log("Hitbox Deactivated");
         state.movementLockCounter--;
         state.primaryAction &= ~PrimaryAction.Attacking;
         SwordAttack.SetActive(false);
