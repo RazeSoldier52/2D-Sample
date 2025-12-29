@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Playables;
@@ -37,7 +38,8 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [SerializeField] private float coyoteTime = 0.2f;
     private float coyoteTimeCounter;
     [Header("Spawn Point")]
-    [SerializeField] Transform spawnPoint;
+    [SerializeField] Vector3 spawnPoint;
+    [SerializeField] private int spawnPriority = 0;
     [SerializeField] public GameObject SwordAttack;
     bool isFalling => rb.linearVelocity.y < -0.1f && state.vertical == VerticalState.Airborne;
     bool isJumpingUp => rb.linearVelocity.y > 0.1f && state.vertical == VerticalState.Airborne;
@@ -45,7 +47,7 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     private void Start()
     {
         currentDashCharges = maxDashCharges;
-        gameObject.transform.position = spawnPoint.position;
+        gameObject.transform.position = spawnPoint;
         baseScale = transform.localScale;
     }
     private void FixedUpdate()
@@ -257,19 +259,26 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     }
     public void HandleBoundaryBehaviour()
     {
-        rb.linearVelocity *= 0;
-        transform.position = spawnPoint.position;
+        rb.linearVelocity = Vector2.zero;
+        transform.position = spawnPoint;
+    }
+    public void ModifySpawnPoint(Vector3 newSpawn, int priority)
+    {
+        if(priority>spawnPriority)
+        {
+            spawnPoint = newSpawn;
+            spawnPriority = priority;
+        }
     }
     public void ActivateHitbox()
     {
-        Debug.Log("Hitbox Activated");
+        if (SwordAttack.activeInHierarchy) return;
         SwordAttack.SetActive(true);
         state.movementLockCounter++;
     }
     public void DeactivateHitbox()
     {
         if (!SwordAttack.activeInHierarchy) return;
-        Debug.Log("Hitbox Deactivated");
         state.movementLockCounter--;
         state.primaryAction &= ~PrimaryAction.Attacking;
         SwordAttack.SetActive(false);

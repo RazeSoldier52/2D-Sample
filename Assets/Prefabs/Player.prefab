@@ -95,7 +95,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.6138026, y: 0.05449789}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -105,7 +105,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.938414, y: 0.58325183}
   m_EdgeRadius: 0
 --- !u!114 &7306404311887788952
 MonoBehaviour:
@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 8719493109380774633}
   - component: {fileID: 7889199500353573272}
   - component: {fileID: 5423123599404157327}
+  - component: {fileID: 1767062766395945272}
   - component: {fileID: 4568911662426575049}
   - component: {fileID: 7419253102718006684}
   m_Layer: 8
@@ -151,7 +152,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalScale: {x: 6, y: 6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 596513490759166807}
@@ -206,7 +207,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 4723107735738678597, guid: 8c30c82be889f274eb40aa45f4e3ae6c, type: 3}
+  m_Sprite: {fileID: -3318188226485093758, guid: ae72133dacba6ec4eb33ecde48f50e56, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -288,22 +289,6 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 386c631f-6f63-48ee-87b7-71a3c9a645dc
     m_ActionName: 'Player/Look[/Mouse/delta]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4568911662426575049}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
-        m_MethodName: LightAttack
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 5ac88a16-dde6-4f7e-8552-86a071f75eb0
-    m_ActionName: 'Player/Fire[/Mouse/leftButton]'
   - m_PersistentCalls:
       m_Calls: []
     m_ActionId: 9ec00eac-81b7-4896-9d98-18b09e18d9a0
@@ -396,7 +381,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 4568911662426575049}
         m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
-        m_MethodName: HeavyAttack
+        m_MethodName: LightAttack
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -406,13 +391,66 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: 40008b58-1a08-43d0-a1fc-dcf41f64b7f3
+    m_ActionId: acb907b5-261d-42bf-98fb-55cdf02d23a5
+    m_ActionName: 'Player/LightAttack[/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4568911662426575049}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: HeavyAttack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 0
+    m_ActionId: f00c5256-91aa-4c16-b089-2406b89cce16
     m_ActionName: 'Player/HeavyAttack[/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!70 &1767062766395945272
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8751402046621260853}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 6200000, guid: 4206ac4f3f29670468d04b6bbd63ef1b, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.0054671764, y: -0.00024839243}
+  m_Size: {x: 0.112103626, y: 0.33072305}
+  m_Direction: 0
 --- !u!114 &4568911662426575049
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426,7 +464,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   rb: {fileID: 7889199500353573272}
-  playerCollider: {fileID: 0}
+  playerCollider: {fileID: 1767062766395945272}
   animator: {fileID: 7419253102718006684}
   baseScale: {x: 0, y: 0, z: 0}
   state:
@@ -439,10 +477,10 @@ MonoBehaviour:
   acceleration: 50
   breakingForce: 15
   stickToGroundForce: 40
-  dashPower: 30
+  dashPower: 20
   dashDuration: 0.2
-  maxDashCharges: 1
-  dashRechargeTime: 2
+  maxDashCharges: 2
+  dashRechargeTime: 1.5
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -450,9 +488,8 @@ MonoBehaviour:
   minNormalYThreshold: 0.7
   xSpeed: 0
   ySpeed: 0
-  jumpingPower: 10
+  jumpingPower: 7.5
   minGroundedTime: 0.1
-  jumpCutOffSpeedMultiplier: 0.5
   coyoteTime: 0.2
   spawnPoint: {fileID: 0}
   SwordAttack: {fileID: 6392730091315349195}

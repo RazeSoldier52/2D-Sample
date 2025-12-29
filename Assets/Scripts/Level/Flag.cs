@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.Events;
 
 public class Flag : MonoBehaviour
 {
@@ -9,7 +10,9 @@ public class Flag : MonoBehaviour
     [Header("Display Settings")]
     [SerializeField] private float displayDuration = 3f;
     [SerializeField] private bool isHandlingTrigger=false;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField] int spawnPointPriority;
+    [SerializeField] Transform spawnPointTransform;
+    [SerializeField] public UnityEvent<Vector3, int> onPlayerPassedCheckpoint;
     void Start()
     {
         if (messageText!=null)
@@ -18,13 +21,14 @@ public class Flag : MonoBehaviour
             messageText.gameObject.SetActive(false);
         }
     }
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (collision.CompareTag("Player") && !isHandlingTrigger)
+        if (!isHandlingTrigger)
         {
             isHandlingTrigger=true;
             StartCoroutine(DisplayMessageCoroutine());
         }
+        onPlayerPassedCheckpoint?.Invoke(spawnPointTransform.position,spawnPointPriority);    
     }
     private IEnumerator DisplayMessageCoroutine()
     {

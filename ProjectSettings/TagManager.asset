@@ -19,10 +19,10 @@ TagManager:
   - Enemy
   - PlayerAttack
   - Camera
-  - 
-  - 
-  - 
-  - 
+  - PlayerTrigger
+  - EnemyTrigger
+  - Background
+  - Foreground
   - 
   - 
   - 
@@ -45,3 +45,5 @@ TagManager:
     locked: 0
   m_RenderingLayers:
   - Default
+  - Background
+  - Foreground
