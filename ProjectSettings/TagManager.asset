@@ -10,7 +10,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - NoCollision
   - Water
   - UI
   - Ground
@@ -21,8 +21,8 @@ TagManager:
   - Camera
   - PlayerTrigger
   - EnemyTrigger
-  - Background
-  - Foreground
+  - 
+  - 
   - 
   - 
   - 

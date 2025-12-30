@@ -10,11 +10,17 @@ public class Flag : MonoBehaviour
     [Header("Display Settings")]
     [SerializeField] private float displayDuration = 3f;
     [SerializeField] private bool isHandlingTrigger=false;
+    [Header("CheckPoint")]
     [SerializeField] int spawnPointPriority;
     [SerializeField] Transform spawnPointTransform;
-    [SerializeField] public UnityEvent<Vector3, int> onPlayerPassedCheckpoint;
+    [SerializeField] private bool checkpointTriggered;
+    [Header("Flag")]
+    [SerializeField] GameObject flag;
+    [SerializeField] private Color activeFlagColor = Color.green;
+    [SerializeField] private Color inactiveFlagColor = Color.white;
     void Start()
     {
+        flag.GetComponent<SpriteRenderer>().color = inactiveFlagColor;
         if (messageText!=null)
         {
             messageText.gameObject.SetActive(true);
@@ -28,7 +34,29 @@ public class Flag : MonoBehaviour
             isHandlingTrigger=true;
             StartCoroutine(DisplayMessageCoroutine());
         }
-        onPlayerPassedCheckpoint?.Invoke(spawnPointTransform.position,spawnPointPriority);    
+        if (checkpointTriggered) return; 
+        if(other.TryGetComponent<PlayerController>(out PlayerController player))
+        {
+            player.ModifySpawnPoint(spawnPointTransform.position, spawnPointPriority);
+            checkpointTriggered = true;
+        }
+    }
+    public void UpdateColor(int currentSpawnPointPriority)
+    {
+        if(currentSpawnPointPriority==spawnPointPriority)
+        {
+            flag.GetComponent<SpriteRenderer>().color = activeFlagColor;
+        }
+        else
+            flag.GetComponent<SpriteRenderer>().color = inactiveFlagColor;
+    }
+    private void OnEnable()
+    {
+        PlayerController.onPlayerChangedCheckpoint += UpdateColor;
+    }
+    private void OnDisable()
+    {
+        PlayerController.onPlayerChangedCheckpoint -= UpdateColor;
     }
     private IEnumerator DisplayMessageCoroutine()
     {

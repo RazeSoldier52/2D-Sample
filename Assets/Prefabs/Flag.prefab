@@ -280,18 +280,7 @@ MonoBehaviour:
   isHandlingTrigger: 0
   spawnPointPriority: 1
   spawnPointTransform: {fileID: 7960101718830898248}
-  onPlayerPassedCheckpoint:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
-        m_MethodName: ModifySpawnPoint
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+  checkpointTriggered: 0
+  flag: {fileID: 3863806936374247557}
+  activeFlagColor: {r: 0, g: 0.08852029, b: 1, a: 1}
+  inactiveFlagColor: {r: 1, g: 0, b: 0.4226737, a: 1}

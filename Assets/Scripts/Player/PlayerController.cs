@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [SerializeField] Vector3 spawnPoint;
     [SerializeField] private int spawnPriority = 0;
     [SerializeField] public GameObject SwordAttack;
+    public static event Action<int> onPlayerChangedCheckpoint;
     bool isFalling => rb.linearVelocity.y < -0.1f && state.vertical == VerticalState.Airborne;
     bool isJumpingUp => rb.linearVelocity.y > 0.1f && state.vertical == VerticalState.Airborne;
 
@@ -268,6 +269,7 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
         {
             spawnPoint = newSpawn;
             spawnPriority = priority;
+            onPlayerChangedCheckpoint?.Invoke(spawnPriority);
         }
     }
     public void ActivateHitbox()
