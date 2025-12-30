@@ -282,5 +282,5 @@ MonoBehaviour:
   spawnPointTransform: {fileID: 7960101718830898248}
   checkpointTriggered: 0
   flag: {fileID: 3863806936374247557}
-  activeFlagColor: {r: 0, g: 0.08852029, b: 1, a: 1}
-  inactiveFlagColor: {r: 1, g: 0, b: 0.4226737, a: 1}
+  activeFlagColor: {r: 0.2066791, g: 1, b: 0, a: 1}
+  inactiveFlagColor: {r: 0.6698113, g: 0.6698113, b: 0.6698113, a: 1}

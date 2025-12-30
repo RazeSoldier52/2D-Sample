@@ -4,7 +4,7 @@ using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Playables;
-public class PlayerController : MonoBehaviour, IBoundaryBehaviour
+public class PlayerController : MonoBehaviour, IBoundaryBehaviour,IDamageable
 {
 
     [Header("Player Component References")]
@@ -18,6 +18,8 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
     [SerializeField] private float breakingForce = 15f;
     [SerializeField] private float stickToGroundForce = 15f;
     private float horizontal;
+    [Header("Attributes")]
+    [SerializeField] private float health;
     [Header("Dashing")]
     [SerializeField] private float dashPower = 30f;
     [SerializeField] private float dashDuration = 0.2f;
@@ -284,5 +286,16 @@ public class PlayerController : MonoBehaviour, IBoundaryBehaviour
         state.movementLockCounter--;
         state.primaryAction &= ~PrimaryAction.Attacking;
         SwordAttack.SetActive(false);
+    }
+
+    public void TakeDamage(HitInfo hitInfo)
+    {
+        health -= hitInfo.damage;
+        if (health < 0) Die();
+
+    }
+    private void Die()
+    {
+        Destroy(gameObject);
     }
 }

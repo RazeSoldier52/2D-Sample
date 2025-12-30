@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1846918870895627340}
   - component: {fileID: 7273295659244127893}
   - component: {fileID: 7306404311887788952}
-  m_Layer: 10
+  m_Layer: 8
   m_Name: SwordAttack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -491,7 +491,8 @@ MonoBehaviour:
   jumpingPower: 7.5
   minGroundedTime: 0.1
   coyoteTime: 0.2
-  spawnPoint: {fileID: 0}
+  spawnPoint: {x: 0, y: 0, z: 0}
+  spawnPriority: 0
   SwordAttack: {fileID: 6392730091315349195}
 --- !u!95 &7419253102718006684
 Animator:

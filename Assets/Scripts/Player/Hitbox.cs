@@ -6,10 +6,17 @@ public class Hitbox : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [SerializeField] private int lightAttackDamage = 5;
     public static event Action<HitInfo> OnAnyHit;
-
+    private void Start()
+    {
+        if (transform.parent != null)
+        {
+            transform.tag = transform.parent.tag;
+        }
+    }
     public void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.TryGetComponent<IDamageable>(out IDamageable hitRecipient))
+        if(other.CompareTag(transform.tag)) return;
+        if(other.TryGetComponent<IDamageable>(out IDamageable hitRecipient) )
         {
             HitInfo info = new HitInfo
             {

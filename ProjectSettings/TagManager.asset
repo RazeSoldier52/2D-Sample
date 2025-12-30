@@ -15,13 +15,13 @@ TagManager:
   - UI
   - Ground
   - WorldBoundary
-  - Player
-  - Enemy
-  - PlayerAttack
-  - Camera
-  - PlayerTrigger
-  - EnemyTrigger
+  - Unit
   - 
+  - Hitbox
+  - Camera
+  - 
+  - 
+  - EventTrigger
   - 
   - 
   - 
@@ -40,6 +40,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 2113497335
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
